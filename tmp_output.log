@@ -1,0 +1,18 @@
+Sheet: Tarjetas de acceso 2026
+Headers (Row 1): ["TARJETAS DE ACCESO "]
+Headers (Row 2): ["NOMBRE DEL EMPLEADO","PUESTO","CORREO","WHATS APP","TEL OFICINA"]
+Row 3: ["ABRIL ALEJANDRA MARTÍNEZ","Ingeniero de ventas JR","abril.martinez@haften.com.mx","52 (55) 80 07 04 14","55 5638-1224"]
+Row 4: ["MILTON ASIEL GARCIA ORTEGA","Ingeniero de ventas JR","milton.garcia@haften.com.mx","52 55 80 07 04 00","55 5638-1224"]
+Row 5: ["ESTEBAN CANO ROA","Ingeniero de ventas JR","esteban.cano@haften.com.mx","55 99 11 58 91","55 5638-1224"]
+Sheet: Hoja1
+Headers (Row 1): [null,"NOMBRE DEL EMPLEADO","PUESTO","CORREO","CELULAR","TEL OFICINA",null,null,"MARIANA MAGALI FLORES RAMÍREZ",101,"mariana.flores@haften.com.mx","55 56 38 12 24"]
+Headers (Row 2): [1,"ISRAEL CALIXTO REBOLLEDO","Gerente de Administración ","israel.calixto@haften.com.mx","55 80 07 04 16","55 5638-1224",null,null,"NANCY SAAVEDRA",119,"nancy.saavedra@haften.com.mx","55 27 86 75 71"]
+Row 3: [2,"CARLOS FABIAN LUNA VARGAS","Auxiliar Administrativo ","fabian.luna@haften.com.mx",null,"55 5638-1224",null,null,"LUIS FER ROMERO",107,"luisfernando.romero@haften.com.mx","55 61 21 13 28"]
+Row 4: [3,"MARIANA MAGALI FLORES RAMÍREZ","Recepción ","mariana.flores@haften.com.mx",null,"55 5638-1224",null,null,"BELEN MENDEZ",108,"belen.mendez@haften.com.mx","55 30 06 70 99"]
+Row 5: [4,"Nancy Karina  Saavedra Alillo     ","Auxiliar Administrativo ","nancy.saavedra@haften.com.mx",null,"55 5638-1224",null,null,"ISRAEL CALIXTO",104,"israel.calixto@haften.com.mx","55 80 07 04 16"]
+Sheet: FORMATO
+Headers (Row 1): ["DATOS PERSONALES PARA CREDENCIALIZACIÓN CORPORATIVA"]
+Headers (Row 2): []
+Row 3: [null,null,null,"Fecha:",43363]
+Row 4: []
+Row 5: ["Proyecto:","CREDENCIALES DE EMPLEADO ",null,"Nombre de Compañía:","HAFTEN SA DE CV"]

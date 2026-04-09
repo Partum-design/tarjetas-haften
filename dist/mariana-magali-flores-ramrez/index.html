@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- SEO and Display optimization -->
+    <meta name="description" content="Tarjeta de Presentación Digital - Haften">
+    <title>vCard - MARIANA MAGALI FLORES RAMÍREZ - Haften</title>
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Google Fonts Optimized -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap"
+            rel="stylesheet">
+    </noscript>
+
+    <!-- FontAwesome defer -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
+    <style>
+        :root {
+            /* Keep existing vars... */
+            --vino: #7C2A1E;
+            --vino-dark: #581d14;
+            --vino-light: #9f3b2c;
+            --text-dark: #333333;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --glass-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--vino);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 20px;
+            perspective: 1200px;
+            /* Enhanced perspective */
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.9;
+        }
+
+        /* The Flip Container */
+        .card-container {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* The moving inner layer */
+        .flip-inner {
+            width: 100%;
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        .card-container.flipped .flip-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-front {
+            position: relative;
+            /* Important: drives the height of the card */
+            width: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: 0 25px 45px var(--glass-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 40px;
+            z-index: 2;
+        }
+
+        .flip-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Adapts to the total height dictated by flip-front */
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            /* Slightly more opaque for back readability */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: 0 25px 45px var(--glass-shadow);
+            transform: rotateY(180deg);
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Back side details */
+        .back-logo {
+            max-width: 150px;
+            margin-bottom: 25px;
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .back-title {
+            color: var(--vino);
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .back-subtitle {
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .back-info {
+            width: 100%;
+            text-align: left;
+            border-top: 1px solid rgba(124, 42, 30, 0.2);
+            padding-top: 20px;
+            margin-top: 10px;
+        }
+
+        .back-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1rem;
+            color: #444;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .back-item:hover {
+            color: var(--vino);
+            transform: translateX(5px);
+        }
+
+        .back-item i {
+            color: var(--vino);
+            font-size: 1.3rem;
+            width: 25px;
+            text-align: center;
+        }
+
+        .back-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #777;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Header top (Front) */
+        .card-header {
+            width: 100%;
+            padding: 40px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+            position: relative;
+        }
+
+        .logo {
+            max-width: 180px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .services-text {
+            font-size: 0.8rem;
+            text-align: center;
+            color: var(--text-dark);
+            font-weight: 600;
+            line-height: 1.3;
+            max-width: 85%;
+            z-index: 1;
+        }
+
+        /* Foto Circular */
+        .profile-container {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            margin-top: 10px;
+            border-radius: 50%;
+            background: #fff;
+            padding: 6px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            background: #fff;
+        }
+
+        .profile-icon {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            color: #ddd;
+            background: #f4f4f4;
+            border: 2px solid #fff;
+        }
+
+        /* Información Personal */
+        .info-section {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            margin-top: 25px;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        .name {
+            font-size: 1.4rem;
+            color: var(--text-dark);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .name strong {
+            color: var(--vino);
+            font-weight: 800;
+        }
+
+        .position {
+            font-size: 0.85rem;
+            color: var(--vino-dark);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .position::before,
+        .position::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 25px;
+            height: 1px;
+            background: var(--vino);
+        }
+
+        .position::before {
+            left: -35px;
+        }
+
+        .position::after {
+            right: -35px;
+        }
+
+        /* Botones de Acción (Píldoras) */
+        .action-buttons {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            padding: 0 30px;
+            margin-bottom: 25px;
+        }
+
+        @media(min-width: 380px) {
+            .action-buttons {
+                flex-direction: row;
+                justify-content: space-between;
+                gap: 10px;
+            }
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 11px 14px;
+            border-radius: 50px;
+            background: linear-gradient(120deg, #7C2A1E 0%, #8c3123 100%);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 4px 15px rgba(124, 42, 30, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Prevent click bubbling inside card to flip unexpectedly on buttons */
+        .action-btn,
+        .circle-icon {
+            position: relative;
+            z-index: 10;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(120deg, #8c3123 0%, #6e251a 100%);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(124, 42, 30, 0.25);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Iconos de Contacto Circulares Inferiores */
+        .contact-icons {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .circle-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid var(--vino);
+            color: var(--vino);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .circle-icon:hover {
+            background: var(--vino);
+            color: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(124, 42, 30, 0.3);
+        }
+    </style>
+</head>
+
+<body oncontextmenu="return false;">
+    <!-- Fondo de Video -->
+    <video autoplay muted loop playsinline preload="auto" class="video-bg">
+        <source
+            src="C:\Users\Diseño Partum Design\.gemini\antigravity\scratch\Tarjetas-haften\video_fondo\fondo_video.mp4"
+            type="video/mp4">
+        <source
+            src="C:\Users\Diseño Partum Design\.gemini\antigravity\scratch\Tarjetas-haften\video_fondo\fondo_video.mp4"
+            type="video/quicktime">
+    </video>
+
+    <!-- Flip Card Container -->
+    <div class="card-container" id="flipBox">
+        <div class="flip-inner">
+
+            <!-- TARJETA FRONTAL -->
+            <div class="flip-front">
+                <div class="card-header">
+                    <img src="file:///C:/Users/Dise%C3%B1o%20Partum%20Design/.gemini/antigravity/scratch/Tarjetas-haften/logo_haften/logohaften.png"
+                        alt="Haften Logo" class="logo" decoding="async">
+                    <div class="services-text">
+                        Periféricos HVAC/R-BMS Medición y ahorro de energía<br>
+                        Humidificadores<br>
+                        Deshumidificadores<br>
+                        Calefactores eléctricos
+                    </div>
+                </div>
+
+                <div class="profile-container">
+                    <img src="../../fotos/ÁREA LOGÍSTICA/22_MARIANA FLORES_LOG/IMG_9999.JPG" alt="MARIANA MAGALI FLORES RAMÍREZ" class="profile-pic" style="object-fit: cover; object-position: center top;">
+                </div>
+
+                <div class="info-section">
+                    <h1 class="name"><strong>MARIANA</strong> <br>MAGALI FLORES RAMÍREZ</h1>
+                    <h2 class="position">Logística / Recepción</h2>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="https://wa.me/5556381224" target="_blank" class="action-btn"
+                        style="display: flex;">
+                        <i class="fab fa-whatsapp"></i> WHATSAPP
+                    </a>
+                    <a href="https://www.haften.com.mx" target="_blank" class="action-btn">
+                        <i class="fas fa-globe"></i> WEB
+                    </a>
+                </div>
+
+                <div class="contact-icons">
+                    <a href="mailto:mariana.flores@haften.com.mx" class="circle-icon" title="Enviar Correo"
+                        style="display: flex;">
+                        <i class="far fa-envelope"></i>
+                    </a>
+                    <a href="tel:5556381224" class="circle-icon" title="Llamar Oficina"
+                        style="display: flex;">
+                        <i class="fas fa-phone-alt"></i>
+                    </a>
+                    <a href="https://www.facebook.com/" target="_blank" class="circle-icon" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/haften/" target="_blank" class="circle-icon"
+                        title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://maps.app.goo.gl/EJb7N6n5yR1D14vH7" target="_blank" class="circle-icon"
+                        title="Ubicación">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- TARJETA TRASERA -->
+            <div class="flip-back">
+                <img src="file:///C:/Users/Dise%C3%B1o%20Partum%20Design/.gemini/antigravity/scratch/Tarjetas-haften/logo_haften/logohaften.png"
+                    alt="Haften Logo" class="back-logo" loading="lazy" decoding="async">
+                <h2 class="back-title">MARIANA MAGALI FLORES RAMÍREZ</h2>
+                <div class="back-subtitle">Logística / Recepción</div>
+
+                <div class="back-info">
+                    <a href="https://wa.me/5556381224" target="_blank" class="back-item"
+                        style="display: flex;">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>+5556381224</span>
+                    </a>
+                    <a href="mailto:mariana.flores@haften.com.mx" class="back-item" style="display: flex;">
+                        <i class="far fa-envelope"></i>
+                        <span>mariana.flores@haften.com.mx</span>
+                    </a>
+                    <a href="tel:5556381224" class="back-item" style="display: flex;">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>5556381224</span>
+                    </a>
+                    <a href="https://maps.app.goo.gl/EJb7N6n5yR1D14vH7" target="_blank" class="back-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Revolución #789, CDMX<br><small>Oficinas Centrales</small></span>
+                    </a>
+                </div>
+
+                <!-- Botón de regreso -->
+                <div class="back-hint">
+                    <i class="fas fa-hand-pointer"></i> Arrastrar para voltear
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script de Efectos (Swipe y Drag) -->
+    <script>
+        const card = document.getElementById('flipBox');
+
+        // Logic for Swipe / Drag to flip (Touch & Mouse)
+        let startX = 0;
+        let isDragging = false;
+
+        card.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        }, { passive: true });
+
+        card.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            let endX = e.changedTouches[0].clientX;
+            handleSwipe(startX, endX);
+            isDragging = false;
+        });
+
+        card.addEventListener('mousedown', (e) => {
+            if (e.target.closest('a') || e.target.closest('button')) return;
+            // Additional check to avoid interfering with right click if needed, though context menu is blocked
+            if (e.button !== 0) return;
+            startX = e.clientX;
+            isDragging = true;
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            let endX = e.clientX;
+            if (Math.abs(startX - endX) > 30) {
+                handleSwipe(startX, endX);
+            }
+            isDragging = false;
+        });
+
+        // Toggle on swipe left or right
+        function handleSwipe(start, end) {
+            let diff = end - start;
+            if (diff > 40 || diff < -40) {
+                card.classList.toggle('flipped');
+            }
+        }
+    </script>
+</body>
+
+</html>

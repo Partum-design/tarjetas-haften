@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio de Tarjetas - Haften</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #fdfdfd; padding: 40px 20px; text-align: center; color: #333; margin: 0; }
+        h1 { color: #7C2A1E; font-size: 2.5rem; margin-bottom: 10px; font-weight: 700; letter-spacing: -0.5px;}
+        
+        .search-container { max-width: 600px; margin: 0 auto 40px auto; position: relative; }
+        .search-icon { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); color: #888; font-size: 1.2rem; transition: 0.3s; }
+        .search-input { width: 100%; padding: 18px 20px 18px 55px; font-size: 1.1rem; border: 2px solid transparent; border-radius: 40px; outline: none; background: #fff; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.04); font-family: 'Outfit', sans-serif;}
+        .search-input:focus { border-color: rgba(124, 42, 30, 0.4); box-shadow: 0 15px 40px rgba(124, 42, 30, 0.1); transform: translateY(-2px); }
+        .search-input:focus + .search-icon { color: #7C2A1E; }
+        
+        .directory-container { max-width: 1000px; margin: 0 auto; text-align: left; }
+        .area-group { margin-bottom: 45px; animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
+        .area-group:nth-child(1) { animation-delay: 0.1s; }
+        .area-group:nth-child(2) { animation-delay: 0.2s; }
+        .area-group:nth-child(3) { animation-delay: 0.3s; }
+        .area-group:nth-child(4) { animation-delay: 0.4s; }
+        .area-group:nth-child(5) { animation-delay: 0.5s; }
+        
+        .area-title { color: #581d14; border-bottom: 2px solid #7C2A1E; padding-bottom: 8px; margin-bottom: 20px; font-size: 1.4rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+        .area-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        
+        .list-item { background: white; padding: 25px; border-radius: 16px; text-decoration: none; color: #333; box-shadow: 0 5px 20px rgba(0,0,0,0.03); transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); border: 1px solid rgba(0,0,0,0.02); display: flex; flex-direction: column; position: relative; overflow: hidden;}
+        .list-item::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 5px; background: #7C2A1E; transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+        .list-item:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(124, 42, 30, 0.08); border-color: rgba(124, 42, 30, 0.1); }
+        .list-item:hover::before { width: 8px; }
+        .list-item strong { font-size: 1.15rem; margin-bottom: 6px; font-weight: 600; color: #111;}
+        .list-item small { color: #777; line-height: 1.4; font-size: 0.9rem; font-weight: 300;}
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Ocultar elementos en la busqueda */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <h1>Directorio Interno</h1>
+    <p style="margin-bottom: 30px; color:#666; font-size: 1.1rem;">Encuentra y visualiza fácilmente la vCard de cualquier colaborador.</p>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre o puesto...">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-header" style="margin-bottom: 40px;">
+        <button class="filter-btn active" data-filter="all">Todas las Áreas</button>
+        <button class="filter-btn" data-filter="Administración y Finanzas">Administración</button>
+        <button class="filter-btn" data-filter="Comercial y Ventas">Comercial</button>
+        <button class="filter-btn" data-filter="Dirección y Gerencia">Dirección</button>
+        <button class="filter-btn" data-filter="Ingeniería">Ingeniería</button>
+        <button class="filter-btn" data-filter="Logística y Almacén">Logística</button>
+        <button class="filter-btn" data-filter="Marketing">Marketing</button>
+    </div>
+
+    <style>
+        .filter-header { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 0 20px;}
+        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; color: #555; cursor: pointer; transition: all 0.3s; font-family: 'Outfit'; font-weight: 600; font-size:0.9rem;}
+        .filter-btn:hover { border-color: #7C2A1E; color: #7C2A1E; }
+        .filter-btn.active { background: #7C2A1E; color: #fff; border-color: #7C2A1E; box-shadow: 0 4px 10px rgba(124,42,30,0.3); }
+    </style>
+
+    <div class="directory-container" id="directory">
+        <div class="area-group" data-area="Dirección y Gerencia"><h2 class="area-title">Dirección y Gerencia</h2><div class="area-grid">
+            <a href="./dist/alfonso-rivera/index.html" class="list-item" data-nombre="alfonso rivera" data-puesto="director">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">AL</div>
+                    <div>
+                        <strong>ALFONSO RIVERA</strong><br>
+                        <small>Director</small>
+                    </div>
+                </div>
+            </a>
+        </div></div><div class="area-group" data-area="Administración y Finanzas"><h2 class="area-title">Administración y Finanzas</h2><div class="area-grid">
+            <a href="./dist/israel-calixto-rebolledo/index.html" class="list-item" data-nombre="israel calixto rebolledo" data-puesto="gerente de administración">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA CONTABILIDAD/4_CALIXTO REBOLLEDO ISRAEL- CONTAB/IMG_9635.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>ISRAEL CALIXTO REBOLLEDO</strong><br>
+                        <small>Gerente de Administración</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/armando-salazar-martinez/index.html" class="list-item" data-nombre="armando salazar martinez" data-puesto="contador">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA ADMINISTRACIÓN/16_ARMANDO MARTINEZ ARMANDO_CONT/IMG_9895.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>ARMANDO SALAZAR MARTINEZ</strong><br>
+                        <small>Contador</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/hanin-escamilla/index.html" class="list-item" data-nombre="hanin escamilla" data-puesto="l.a.f">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">HA</div>
+                    <div>
+                        <strong>HANIN ESCAMILLA</strong><br>
+                        <small>L.A.F</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/alejandra-romero-morales/index.html" class="list-item" data-nombre="alejandra romero morales" data-puesto="auxiliar contable">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">AL</div>
+                    <div>
+                        <strong>ALEJANDRA ROMERO MORALES</strong><br>
+                        <small>Auxiliar contable</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/carlos-fabian-luna-vargas/index.html" class="list-item" data-nombre="carlos fabian luna vargas" data-puesto="cuentas por cobrar / auxiliar administrativo">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA ADMINISTRACIÓN/18_CARLOS FABIAN_ ING4/IMG_9938.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>CARLOS FABIAN LUNA VARGAS</strong><br>
+                        <small>Cuentas por cobrar / Auxiliar Administrativo</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/luis-fernando-romero-morales/index.html" class="list-item" data-nombre="luis fernando romero morales" data-puesto="auxiliar administrativo / auxiliar en general">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA ADMINISTRACIÓN/6_ ROMERO MORALESLUIS FERNANDO_ADMI/IMG_9658.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>LUIS FERNANDO ROMERO MORALES</strong><br>
+                        <small>Auxiliar Administrativo / Auxiliar en general</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/nancy-karina-saavedra-alillo/index.html" class="list-item" data-nombre="nancy karina saavedra alillo" data-puesto="auxiliar administrativo">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA ADMINISTRACIÓN/17_SAAVEDRA ALILLO NANCY KARINA_ADM/IMG_9922.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>NANCY KARINA SAAVEDRA ALILLO</strong><br>
+                        <small>Auxiliar Administrativo</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/norma-anglica-contreras-castaeda/index.html" class="list-item" data-nombre="norma angélica contreras castañeda" data-puesto="auxiliar contable">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">NO</div>
+                    <div>
+                        <strong>NORMA ANGÉLICA CONTRERAS CASTAÑEDA</strong><br>
+                        <small>Auxiliar contable</small>
+                    </div>
+                </div>
+            </a>
+        </div></div><div class="area-group" data-area="Comercial y Ventas"><h2 class="area-title">Comercial y Ventas</h2><div class="area-grid">
+            <a href="./dist/juan-carlos-rodrguez-arroyo/index.html" class="list-item" data-nombre="juan carlos rodríguez arroyo" data-puesto="gerente de desarrollo de negocios / regional desarrollo de negocios bajío - occidente - noroeste">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">JU</div>
+                    <div>
+                        <strong>JUAN CARLOS RODRÍGUEZ ARROYO</strong><br>
+                        <small>Gerente de Desarrollo de Negocios / Regional Desarrollo de Negocios Bajío - Occidente - Noroeste</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/abril-alejandra-martnez/index.html" class="list-item" data-nombre="abril alejandra martínez" data-puesto="ingeniero de ventas jr">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/10_ABRIL ALEJANDRA MARTINEZ_ING/IMG_9717.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>ABRIL ALEJANDRA MARTÍNEZ</strong><br>
+                        <small>Ingeniero de ventas JR</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/erick-alberto-carrizales-garca/index.html" class="list-item" data-nombre="erick alberto carrizales garcía" data-puesto="ingeniero de ventas jr / zona noreste">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">ER</div>
+                    <div>
+                        <strong>ERICK ALBERTO CARRIZALES GARCÍA</strong><br>
+                        <small>Ingeniero de ventas JR / Zona Noreste</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/esteban-cano-roa/index.html" class="list-item" data-nombre="esteban cano roa" data-puesto="ingeniero de ventas jr">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/12. ESTEBAN CANO ROA_ING/IMG_9742.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>ESTEBAN CANO ROA</strong><br>
+                        <small>Ingeniero de ventas JR</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/itzel-islas-solis/index.html" class="list-item" data-nombre="itzel islas solis" data-puesto="ingeniero de ventas jr">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/9_ITZEL ISLAS SOLIS_ING/IMG_9695.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>ITZEL ISLAS SOLIS</strong><br>
+                        <small>Ingeniero de ventas JR</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/juan-gmez-carmona/index.html" class="list-item" data-nombre="juan gómez carmona" data-puesto="ingeniero de ventas jr">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/1_JUAN GOMEZ CARMONA -ING/IMG_9574.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>JUAN GÓMEZ CARMONA</strong><br>
+                        <small>Ingeniero de ventas JR</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/marcos-david-gallardo-bautista/index.html" class="list-item" data-nombre="marcos david gallardo bautista" data-puesto="ingeniero regional desarrollo de negocios zona sureste">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">MA</div>
+                    <div>
+                        <strong>MARCOS DAVID GALLARDO BAUTISTA</strong><br>
+                        <small>Ingeniero regional desarrollo de negocios Zona SURESTE</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/mariana-garca-garca/index.html" class="list-item" data-nombre="mariana garcía garcía" data-puesto="ingeniero de ventas jr">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/11_MARIANA GARCIA GARCIA_ING/IMG_9719.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>MARIANA GARCÍA GARCÍA</strong><br>
+                        <small>Ingeniero de ventas JR</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/milton-asiel-garca-ortega/index.html" class="list-item" data-nombre="milton asiel garcía ortega" data-puesto="ingeniero de ventas jr">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/7_MILTON ASIEL GARCIA ORTEGA_ING/IMG_9669.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>MILTON ASIEL GARCÍA ORTEGA</strong><br>
+                        <small>Ingeniero de ventas JR</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/omar-isassi-garcia/index.html" class="list-item" data-nombre="omar isassi garcia" data-puesto="ingeniero regional desarrollo de negocios / zona noreste">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">OM</div>
+                    <div>
+                        <strong>OMAR ISASSI GARCIA</strong><br>
+                        <small>Ingeniero regional desarrollo de negocios / Zona NORESTE</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/victor-hugo-contreras-castaeda/index.html" class="list-item" data-nombre="victor hugo contreras castañeda" data-puesto="ingeniero de proyectos / regional desarrollo de negocios zona centro">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/3_CONTRERAS CASTAÑEDA VICTOR HUGO- ING/IMG_9601.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>VICTOR HUGO CONTRERAS CASTAÑEDA</strong><br>
+                        <small>Ingeniero de Proyectos / Regional Desarrollo de Negocios Zona Centro</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/juan-carlos-diaz-carrera/index.html" class="list-item" data-nombre="juan carlos diaz carrera" data-puesto="desarrollador de negocios zona sureste">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">JU</div>
+                    <div>
+                        <strong>JUAN CARLOS DIAZ CARRERA</strong><br>
+                        <small>Desarrollador de Negocios Zona Sureste</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/raul-coria-ayala/index.html" class="list-item" data-nombre="raul coria ayala" data-puesto="desarrollo de negocios centro">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">RA</div>
+                    <div>
+                        <strong>RAUL CORIA AYALA</strong><br>
+                        <small>Desarrollo de Negocios Centro</small>
+                    </div>
+                </div>
+            </a>
+        </div></div><div class="area-group" data-area="Ingeniería"><h2 class="area-title">Ingeniería</h2><div class="area-grid">
+            <a href="./dist/jorge-eduardo-sosa-martinez/index.html" class="list-item" data-nombre="jorge eduardo sosa martinez" data-puesto="gerente de aplicaciones hvac-bas">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/13_SOSA MARTINEZ JORGE EDUARDO_ING/IMG_9746.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>JORGE EDUARDO SOSA MARTINEZ</strong><br>
+                        <small>Gerente de Aplicaciones HVAC-BAS</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/jos-rodrigo-almaraz-olmos-rodrigo-almaraz-olmos/index.html" class="list-item" data-nombre="josé rodrigo almaraz olmos (rodrigo almaraz olmos)" data-puesto="gerente de aplicación de producto / división humidificación - deshumidificación">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">JO</div>
+                    <div>
+                        <strong>JOSÉ RODRIGO ALMARAZ OLMOS (RODRIGO ALMARAZ OLMOS)</strong><br>
+                        <small>Gerente de Aplicación de Producto / División Humidificación - Deshumidificación</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/guillermo-gonzalez-chavez/index.html" class="list-item" data-nombre="guillermo gonzalez chavez" data-puesto="coordinador de ingeniería / ingeniero de aplicación de producto">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">GU</div>
+                    <div>
+                        <strong>GUILLERMO GONZALEZ CHAVEZ</strong><br>
+                        <small>Coordinador de ingeniería / Ingeniero De Aplicación de producto</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/luis-fernando-arce-torres/index.html" class="list-item" data-nombre="luis fernando arce torres" data-puesto="coordinador de ingeniería">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">LU</div>
+                    <div>
+                        <strong>LUIS FERNANDO ARCE TORRES</strong><br>
+                        <small>Coordinador de ingeniería</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/cirilo-bomaye-cathi/index.html" class="list-item" data-nombre="cirilo bomaye cathi" data-puesto="ingeniero de aplicación de producto">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">CI</div>
+                    <div>
+                        <strong>CIRILO BOMAYE CATHI</strong><br>
+                        <small>Ingeniero de Aplicación de producto</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/edgar-alberto-ramrez-escamilla/index.html" class="list-item" data-nombre="edgar alberto ramírez escamilla" data-puesto="ingeniero de aplicación de producto / división hvac/r bms">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/15_RAMIREZ ESCAMILLA EDGAR ALBERTO_ING/IMG_9783.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>EDGAR ALBERTO RAMÍREZ ESCAMILLA</strong><br>
+                        <small>Ingeniero de Aplicación de producto / División HVAC/R BMS</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/elizabeth-hernandez-flores/index.html" class="list-item" data-nombre="elizabeth hernandez flores" data-puesto="ingeniero de aplicación de producto">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">EL</div>
+                    <div>
+                        <strong>ELIZABETH HERNANDEZ FLORES</strong><br>
+                        <small>Ingeniero de Aplicación de producto</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/gonzles-chrrez-guillermo/index.html" class="list-item" data-nombre="gonzáles chárrez guillermo" data-puesto="especialista en ingenieria">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/14_GONZÁLES CHÁRREZ GUILLERMO_ ING/IMG_9759.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>GonzáLes CháRrez Guillermo</strong><br>
+                        <small>Especialista en INGENIERIA</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/hector-rodriguez-torres/index.html" class="list-item" data-nombre="hector rodriguez torres" data-puesto="ingeniero de aplicación de producto / división hvac/r bms">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">HE</div>
+                    <div>
+                        <strong>HECTOR RODRIGUEZ TORRES</strong><br>
+                        <small>Ingeniero De Aplicación de producto / División HVAC/R BMS</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/isael-vzquez-de-jess/index.html" class="list-item" data-nombre="isael vázquez de jesús" data-puesto="ingeniero de aplicación de producto / div. medición y ahorro de energía">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/8_VAZQUEZ DE JESUS ISAEL_ING/IMG_9678.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>ISAEL VÁZQUEZ DE JESÚS</strong><br>
+                        <small>Ingeniero De Aplicación de producto / Div. Medición y Ahorro de Energía</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/jorge-pablo-pia-pacheco/index.html" class="list-item" data-nombre="jorge pablo piña pacheco" data-puesto="ingeniero de aplicación de producto / zona occidente">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">JO</div>
+                    <div>
+                        <strong>JORGE PABLO PIÑA PACHECO</strong><br>
+                        <small>Ingeniero de Aplicación de producto / Zona Occidente</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/luis-enrique-charrez-mezquite/index.html" class="list-item" data-nombre="luis enrique charrez mezquite" data-puesto="ingeniero de aplicación de producto / división hvac/r bms">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA INGENIERIA/5_CHARREZ MEZQUITE LUIS ENRIQUE- ING/IMG_9643.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>LUIS ENRIQUE CHARREZ MEZQUITE</strong><br>
+                        <small>Ingeniero De Aplicación de producto / División HVAC/R BMS</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/marco-antonio-rojas-nava/index.html" class="list-item" data-nombre="marco antonio rojas nava" data-puesto="ingeniero de aplicación de producto / división humidificación - deshumidificación">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">MA</div>
+                    <div>
+                        <strong>MARCO ANTONIO ROJAS NAVA</strong><br>
+                        <small>Ingeniero de Aplicación de producto / División Humidificación - Deshumidificación</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/mario-hasael-roman-flores/index.html" class="list-item" data-nombre="mario hasael roman flores" data-puesto="ingeniero de aplicación de producto / división humidificación - deshumidificación">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">MA</div>
+                    <div>
+                        <strong>MARIO HASAEL ROMAN FLORES</strong><br>
+                        <small>Ingeniero de Aplicación de producto / División Humidificación - Deshumidificación</small>
+                    </div>
+                </div>
+            </a>
+        </div></div><div class="area-group" data-area="Logística y Almacén"><h2 class="area-title">Logística y Almacén</h2><div class="area-grid">
+            <a href="./dist/servando-gomez-rivera/index.html" class="list-item" data-nombre="servando gomez rivera" data-puesto="jefe de logística / logística de almacén">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA LOGÍSTICA/20_GOMEZ RIVERO SERVANDO_LOG/IMG_9968.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>SERVANDO GOMEZ RIVERA</strong><br>
+                        <small>Jefe de Logística / Logística de Almacén</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/luis-alfredo-morales-lucero/index.html" class="list-item" data-nombre="luis alfredo morales lucero" data-puesto="logística / almacén">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA LOGÍSTICA/21_MORALES LUCERO LUIS ALFREDO_LOG/IMG_9978.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>LUIS ALFREDO MORALES LUCERO</strong><br>
+                        <small>Logística / Almacén</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/mariana-magali-flores-ramrez/index.html" class="list-item" data-nombre="mariana magali flores ramírez" data-puesto="logística / recepción">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA LOGÍSTICA/22_MARIANA FLORES_LOG/IMG_9999.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>MARIANA MAGALI FLORES RAMÍREZ</strong><br>
+                        <small>Logística / Recepción</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/paulino-gregorio-torres-pruneda/index.html" class="list-item" data-nombre="paulino gregorio torres pruneda" data-puesto="logística / almacén">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA LOGÍSTICA/19_TORRES PRUNEDA PAULINO GREGORIO_LOG/IMG_9960.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>PAULINO GREGORIO TORRES PRUNEDA</strong><br>
+                        <small>Logística / Almacén</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/ramiro-romero-chavez/index.html" class="list-item" data-nombre="ramiro romero chavez" data-puesto="logística">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">RA</div>
+                    <div>
+                        <strong>RAMIRO ROMERO CHAVEZ</strong><br>
+                        <small>Logística</small>
+                    </div>
+                </div>
+            </a>
+        
+            <a href="./dist/belen-mendez-martinez/index.html" class="list-item" data-nombre="belen mendez martinez" data-puesto="logística / auxiliar administrativo / asistente">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA LOGÍSTICA/23_ MENDEZ MARTINEZ BELEN_LOG/IMG_0055.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>BELEN MENDEZ MARTINEZ</strong><br>
+                        <small>Logística / Auxiliar Administrativo / Asistente</small>
+                    </div>
+                </div>
+            </a>
+        </div></div><div class="area-group" data-area="Marketing"><h2 class="area-title">Marketing</h2><div class="area-grid">
+            <a href="./dist/laura-elizabeth-mndez-martnez/index.html" class="list-item" data-nombre="laura elizabeth méndez martínez" data-puesto="lic. en marketing / mercadotecnia">
+                <div style="display:flex; align-items:center;">
+                    <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
+                <img src="./fotos/ÁREA MARKETING/2_MENDEZ MARTINEZ LAURA ELIZABETH - MARKETING/IMG_9596.JPG" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+            </div>
+                    <div>
+                        <strong>LAURA ELIZABETH MÉNDEZ MARTÍNEZ</strong><br>
+                        <small>Lic. en Marketing / Mercadotecnia</small>
+                    </div>
+                </div>
+            </a>
+        </div></div>
+    </div>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                applyFilters();
+            });
+        });
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+            const areas = document.querySelectorAll('.area-group');
+            
+            areas.forEach(group => {
+                const groupArea = group.getAttribute('data-area');
+                const items = group.querySelectorAll('.list-item');
+                let hasVisible = false;
+
+                // Match filter logic
+                if (activeFilter !== 'all' && groupArea !== activeFilter) {
+                    group.classList.add('hidden');
+                    return;
+                }
+                
+                items.forEach(item => {
+                    const nombre = item.getAttribute('data-nombre').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const puesto = item.getAttribute('data-puesto').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const queryNorm = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    
+                    if (nombre.includes(queryNorm) || puesto.includes(queryNorm)) {
+                        item.classList.remove('hidden');
+                        hasVisible = true;
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+                
+                if (hasVisible) {
+                    group.classList.remove('hidden');
+                } else {
+                    group.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
