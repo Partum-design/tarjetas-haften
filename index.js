@@ -18,6 +18,101 @@ let currentEmployee = null;
 
 const cleanValue = (val) => val ? val.trim() : '';
 
+function normalizeSpacing(text) {
+    return (text || '').replace(/\s+/g, ' ').trim();
+}
+
+function stripAccents(text) {
+    return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+const accentedWordMap = {
+    'BELEN': 'BEL\u00c9N',
+    'FABIAN': 'FABI\u00c1N',
+    'ANGELICA': 'ANG\u00c9LICA',
+    'APLICACION': 'APLICACI\u00d3N',
+    'ADMINISTRACION': 'ADMINISTRACI\u00d3N',
+    'BAJIO': 'BAJ\u00cdO',
+    'CASTANEDA': 'CASTA\u00d1EDA',
+    'CHAVEZ': 'CH\u00c1VEZ',
+    'CHARREZ': 'CH\u00c1RREZ',
+    'DIAZ': 'D\u00cdAZ',
+    'DIVISION': 'DIVISI\u00d3N',
+    'ENERGIA': 'ENERG\u00cdA',
+    'GARCIA': 'GARC\u00cdA',
+    'GOMEZ': 'G\u00d3MEZ',
+    'GONZALEZ': 'GONZ\u00c1LEZ',
+    'HERNANDEZ': 'HERN\u00c1NDEZ',
+    'INGENIERIA': 'INGENIER\u00cdA',
+    'JOSE': 'JOS\u00c9',
+    'LOGISTICA': 'LOG\u00cdSTICA',
+    'MARTINEZ': 'MART\u00cdNEZ',
+    'MEDICION': 'MEDICI\u00d3N',
+    'MENDEZ': 'M\u00c9NDEZ',
+    'PINA': 'PI\u00d1A',
+    'RAMIREZ': 'RAM\u00cdREZ',
+    'RAUL': 'RA\u00daL',
+    'RODRIGUEZ': 'RODR\u00cdGUEZ',
+    'ROMAN': 'ROM\u00c1N',
+    'SOLIS': 'SOL\u00cdS',
+    'VAZQUEZ': 'V\u00c1ZQUEZ',
+    'JESUS': 'JES\u00daS'
+};
+
+const fullNameCorrections = {
+    'GUILLERMO GONZALES CHARREZ': 'GUILLERMO GONZ\u00c1LES CH\u00c1RREZ'
+};
+
+const likelyFirstNames = new Set([
+    'ABRIL', 'ALEJANDRA', 'ALFONSO', 'ALBERTO', 'ARMANDO', 'BELEN', 'CARLOS', 'CIRILO',
+    'DAVID', 'EDGAR', 'ELIZABETH', 'ENRIQUE', 'ERICK', 'ESTEBAN', 'FABIAN', 'FERNANDO',
+    'GREGORIO', 'GUILLERMO', 'HANIN', 'HECTOR', 'ISAEL', 'ISRAEL', 'ITZEL', 'JORGE',
+    'JOSE', 'JUAN', 'LAURA', 'LUIS', 'MAGALI', 'MARCO', 'MARCOS', 'MARIANA', 'MARIO',
+    'MILTON', 'NANCY', 'NORMA', 'OMAR', 'PABLO', 'PAULINO', 'RAMIRO', 'RAUL', 'RODRIGO',
+    'SERVANDO', 'VICTOR'
+]);
+
+function applyAccentsAndUpper(text) {
+    const upper = normalizeSpacing(stripAccents(text).toUpperCase());
+    return upper
+        .split(' ')
+        .map(token => accentedWordMap[token] || token)
+        .join(' ');
+}
+
+function reorderNameToFirstNameLastName(name) {
+    const tokens = normalizeSpacing(name).split(' ').filter(Boolean);
+    if (tokens.length < 2) return name;
+
+    const firstTokenBase = stripAccents(tokens[0].toUpperCase());
+    if (likelyFirstNames.has(firstTokenBase)) return name;
+
+    let firstNameStart = tokens.length - 1;
+    while (firstNameStart >= 0 && likelyFirstNames.has(stripAccents(tokens[firstNameStart].toUpperCase()))) {
+        firstNameStart--;
+    }
+    firstNameStart++;
+
+    if (firstNameStart > 0 && firstNameStart < tokens.length) {
+        const givenNames = tokens.slice(firstNameStart);
+        const surnames = tokens.slice(0, firstNameStart);
+        return [...givenNames, ...surnames].join(' ');
+    }
+    return name;
+}
+
+function normalizeEmployeeName(rawName) {
+    if (!rawName) return '';
+    let name = normalizeSpacing(rawName);
+    name = name.replace(/\s*\([^)]*\)\s*/g, ' ');
+    name = normalizeSpacing(name);
+    name = reorderNameToFirstNameLastName(name);
+    name = applyAccentsAndUpper(name);
+    const normalizedKey = normalizeSpacing(stripAccents(name).toUpperCase());
+    name = fullNameCorrections[normalizedKey] || name;
+    return name;
+}
+
 lines.forEach(line => {
     if (line.includes('Base de Datos')) return; 
     if (line.includes('Puesto:') || line.includes('Correo:') || line.match(/WhatsApp|Celular/) || line.includes('Tel. Oficina:') || line.includes('NSS:') || line.includes('Tipo de Sangre:') || line.includes('CURP:')) {
@@ -35,12 +130,17 @@ lines.forEach(line => {
         }
     } else {
         if (currentEmployee && currentEmployee.nombre) {
+            currentEmployee.nombre = normalizeEmployeeName(currentEmployee.nombre);
             employees.push(currentEmployee);
         }
-        currentEmployee = { nombre: line.trim() };
+        currentEmployee = {
+            slug: slugify(line.trim()),
+            nombre: normalizeEmployeeName(line.trim())
+        };
     }
 });
 if (currentEmployee && currentEmployee.nombre) {
+    currentEmployee.nombre = normalizeEmployeeName(currentEmployee.nombre);
     employees.push(currentEmployee);
 }
 
@@ -135,8 +235,9 @@ fotosMap.forEach(foto => {
         mappedFolders.add(foto.parentFolder);
     } else {
         // Creating missing employee only if absolutely no match
-        let capitalize = foto.cleanName.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        let capitalize = normalizeEmployeeName(foto.cleanName);
         let newEmp = {
+            slug: slugify(foto.cleanName),
             nombre: capitalize,
             puesto: 'Especialista en ' + foto.baseArea,
             correo: capitalize.split(' ')[0].toLowerCase() + '@haften.com.mx',
@@ -158,7 +259,7 @@ let generatedCount = 0;
 
 employees.filter(e => e.nombre).forEach(emp => {
     let finalHtml = template;
-    const slug = slugify(emp.nombre);
+    const slug = emp.slug || slugify(emp.nombre);
 
     const nombreParts = emp.nombre.split(' ');
     let nombreHTML = emp.nombre;
@@ -269,7 +370,7 @@ areasOrder.forEach(area => {
     masterLinksHTML += `<h2 class="area-title">${area}</h2>`;
     masterLinksHTML += `<div class="area-grid">`;
     emps.forEach(emp => {
-        const slug = slugify(emp.nombre);
+        const slug = emp.slug || slugify(emp.nombre);
         
         let miniThumbnail = '';
         if(emp.previewSrc) {
