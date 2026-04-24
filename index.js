@@ -167,10 +167,19 @@ function cleanEmployeeFolderName(folderName) {
         .replace(/GONZÁLES/i, 'GONZALEZ'));
 }
 
+function normalizePhotoPath(fullPath) {
+    return stripAccents(fullPath).toLowerCase().trim().replace(/\\/g, '/');
+}
+
+function isProfileJpgPhoto(fullPath) {
+    return normalizePhotoPath(fullPath).includes('/foto de perfil/jpg/');
+}
+
 function getPhotoCandidateScore(fullPath) {
-    const normalizedPath = stripAccents(fullPath).toLowerCase().trim().replace(/\\/g, '/');
+    const normalizedPath = normalizePhotoPath(fullPath);
     const fileName = stripAccents(path.basename(fullPath)).toLowerCase().trim();
 
+    if (isProfileJpgPhoto(fullPath)) return 0;
     if (normalizedPath.includes('/foto de perfil/') && fileName.includes('perfil')) return 1;
     if (normalizedPath.includes('/fotos editadas/')) return 2;
     if (fileName.includes('perfil')) return 3;
@@ -217,6 +226,7 @@ function findFotos(dir) {
                 baseArea: meta.baseArea,
                 parentFolder: meta.employeeFolder,
                 employeeFolder: meta.employeeFolder,
+                isProfileJpg: isProfileJpgPhoto(fullPath),
                 score: getPhotoCandidateScore(fullPath)
             });
         }
