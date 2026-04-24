@@ -188,6 +188,8 @@ function getPhotoCandidateScore(fullPath) {
 }
 
 function getPhotoMeta(fullPath) {
+    if (!isProfileJpgPhoto(fullPath)) return null;
+
     const relParts = path.relative(fotosDir, fullPath).split(path.sep);
     if (relParts.length < 3) return null;
 
@@ -351,7 +353,7 @@ employees.filter(e => e.nombre).forEach(emp => {
         // It's going to be in `dist/slug/index.html`, so to reach `fotos/` it is `../../fotos/...`
         let absoluteRel = "../../" + path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/');
         // Let's use file:/// URI to exactly map to the local file for consistency with the background video, or fallback to the relative. The user runs this locally.
-        fotoHTML = `<img src="${absoluteRel}" alt="${emp.nombre}" class="profile-pic" style="object-fit: cover; object-position: center top;">`;
+        fotoHTML = `<img src="${absoluteRel}" alt="${emp.nombre}" class="profile-pic">`;
         previewSrc = `./` + path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/');
     } else {
         const initials = emp.nombre.substring(0,2).toUpperCase();
@@ -451,7 +453,7 @@ areasOrder.forEach(area => {
         let miniThumbnail = '';
         if(emp.previewSrc) {
             miniThumbnail = `<div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
-                <img src="${emp.previewSrc}" style="width:100%; height:100%; object-fit:cover; object-position:center top;" loading="lazy" decoding="async">
+                <img src="${emp.previewSrc}" style="width:100%; height:100%; object-fit:cover; object-position:center 18%; transform:scale(1.14);" loading="lazy" decoding="async">
             </div>`;
         } else {
             miniThumbnail = `<div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">${emp.nombre.substring(0,2)}</div>`;
