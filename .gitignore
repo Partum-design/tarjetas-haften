@@ -1,0 +1,29 @@
+# Archivos pesados de fotografia y edicion que no usa la web.
+fotos/**/*.CR3
+fotos/**/*.cr3
+fotos/**/*.ai
+fotos/**/*.AI
+fotos/**/*.pdf
+fotos/**/*.PDF
+fotos/**/*.xmp
+fotos/**/*.XMP
+fotos/**/.AI_E/
+fotos/**/FOTOS EDITADAS/
+fotos/**/GAFETE/
+fotos/FOTOS ALMACEN/
+fotos/FOTOS GRUPALES/
+fotos/FOTOS GRUPALES INGENIERIA/
+
+# Camara/exportaciones fuera de la ruta oficial de perfil.
+fotos/**/*.JPG
+fotos/**/*.jpg
+fotos/**/*.JPEG
+fotos/**/*.jpeg
+fotos/**/*.PNG
+fotos/**/*.png
+
+# La app solo usa esta foto por colaborador.
+!fotos/**/FOTO DE PERFIL/
+!fotos/**/FOTO DE PERFIL/JPG/
+!fotos/**/FOTO DE PERFIL/JPG/PERFIL.jpg
+!fotos/**/FOTO DE PERFIL/JPG/PERFIL.JPG
