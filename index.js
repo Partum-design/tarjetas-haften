@@ -156,7 +156,48 @@ function slugify(text) {
 // ---------------------------------------------------------------------------------------------------------
 // EXTRACT PHOTOS LOGIC
 // ---------------------------------------------------------------------------------------------------------
-let fotosMap = []; // { filepath, cleanName, baseArea }
+let fotosMap = []; // { filepath, cleanName, baseArea, employeeFolder }
+
+function cleanEmployeeFolderName(folderName) {
+    return normalizeSpacing(folderName
+        .replace(/^\d+[_\.\-]?\s*/, '')
+        .replace(/[_\-]\s*(ADM|ADMI|CONT|CONTAB|ING|LOG|MARKETING)\s*\d*$/i, '')
+        .replace(/\s*-\s*(ADM|ADMI|CONT|CONTAB|ING|LOG|MARKETING)\s*$/i, '')
+        .replace(/MORALESLUIS/i, 'MORALES LUIS')
+        .replace(/GONZÁLES/i, 'GONZALEZ'));
+}
+
+function getPhotoCandidateScore(fullPath) {
+    const normalizedPath = stripAccents(fullPath).toLowerCase().trim().replace(/\\/g, '/');
+    const fileName = stripAccents(path.basename(fullPath)).toLowerCase().trim();
+
+    if (normalizedPath.includes('/foto de perfil/') && fileName.includes('perfil')) return 1;
+    if (normalizedPath.includes('/fotos editadas/')) return 2;
+    if (fileName.includes('perfil')) return 3;
+    if (normalizedPath.includes('/gafete/')) return 8;
+    return 5;
+}
+
+function getPhotoMeta(fullPath) {
+    const relParts = path.relative(fotosDir, fullPath).split(path.sep);
+    if (relParts.length < 3) return null;
+
+    const areaFolder = relParts[0];
+    const employeeFolder = relParts[1];
+    const areaNorm = stripAccents(areaFolder).toLowerCase().trim();
+
+    if (!areaNorm.startsWith('area ')) return null;
+    const employeeFolderNorm = stripAccents(employeeFolder).toLowerCase().trim();
+    if (employeeFolderNorm.includes('grupales') || employeeFolderNorm.startsWith('fotos')) return null;
+
+    return {
+        areaFolder,
+        employeeFolder,
+        cleanName: cleanEmployeeFolderName(employeeFolder),
+        baseArea: areaFolder.replace(/^ÁREA\s+/i, '')
+    };
+}
+
 function findFotos(dir) {
     if (!fs.existsSync(dir)) return;
     let list = fs.readdirSync(dir);
@@ -166,20 +207,17 @@ function findFotos(dir) {
         if (stat.isDirectory()) {
             findFotos(fullPath);
         } else if (file.toLowerCase().endsWith('.jpg') || file.toLowerCase().endsWith('.png') || file.toLowerCase().endsWith('.jpeg')) {
-            // Extract the name of the immediate parent folder
-            let parentFolder = path.basename(dir);
-            let grandParentFolder = path.basename(path.dirname(dir));
-            
-            // Clean up name: remove starting numbers like "10_ " and trailing tags like "_ING"
-            // Example: "10_ABRIL ALEJANDRA MARTINEZ_ING" -> "ABRIL ALEJANDRA MARTINEZ"
-            let cleanName = parentFolder.replace(/^\d+[_\.\-]?\s*/, '').replace(/[_\-]\s*[A-Z0-9]+$/i, '').trim().toLowerCase();
+            const meta = getPhotoMeta(fullPath);
+            if (!meta) return;
             
             fotosMap.push({
                 fullPath: fullPath,
                 relPath: path.relative(distDir, fullPath).replace(/\\/g, '/'), // Important: relative to distDir which is usually where index.html lives ... wait actually relative to inside dist/:slug
-                cleanName: cleanName,
-                baseArea: grandParentFolder.replace('ÁREA ', ''),
-                parentFolder: parentFolder
+                cleanName: meta.cleanName,
+                baseArea: meta.baseArea,
+                parentFolder: meta.employeeFolder,
+                employeeFolder: meta.employeeFolder,
+                score: getPhotoCandidateScore(fullPath)
             });
         }
     });
@@ -195,18 +233,46 @@ const normalizeStr = (str) => {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 };
 
+function levenshtein(a, b) {
+    if (a === b) return 0;
+    if (!a.length) return b.length;
+    if (!b.length) return a.length;
+
+    const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            const cost = b.charAt(i - 1) === a.charAt(j - 1) ? 0 : 1;
+            matrix[i][j] = Math.min(
+                matrix[i - 1][j - 1] + cost,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j] + 1
+            );
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
+
+function areSimilarTokens(a, b) {
+    if (a === b) return true;
+    if (a.length < 5 || b.length < 5) return false;
+    return levenshtein(a, b) <= 1;
+}
+
 let addedFromPhotos = 0;
 
-// Sort fotosMap to favor the first image in each folder alphabetically
-fotosMap.sort((a,b) => a.fullPath.localeCompare(b.fullPath));
+// Sort fotosMap to favor profile photos, then edited photos, then regular camera files.
+fotosMap.sort((a,b) => {
+    if (a.employeeFolder !== b.employeeFolder) return a.employeeFolder.localeCompare(b.employeeFolder);
+    if (a.score !== b.score) return a.score - b.score;
+    return a.fullPath.localeCompare(b.fullPath);
+});
 let mappedFolders = new Set();
 
 fotosMap.forEach(foto => {
-    // Exclude group/general pictures
-    let lowerParent = foto.parentFolder.toLowerCase();
-    let lowerName = foto.cleanName.toLowerCase();
-    if (lowerParent.includes('grupales') || foto.baseArea.toLowerCase().includes('grupales') || lowerParent.startsWith('fotos')) return;
-    if (mappedFolders.has(foto.parentFolder)) return; // Only take one picture per folder
+    if (mappedFolders.has(foto.employeeFolder)) return; // Only take one picture per employee folder
     
     // Find matching employee by word intersection
     let photoWords = normalizeStr(foto.cleanName).split(/\s+/).filter(w => w.length > 2);
@@ -219,7 +285,7 @@ fotosMap.forEach(foto => {
         
         let matchCount = 0;
         empWords.forEach(ew => {
-            if (photoWords.includes(ew)) matchCount++;
+            if (photoWords.some(pw => areSimilarTokens(ew, pw))) matchCount++;
         });
 
         // We require at least 2 words to match (e.g., "Laura" AND "Mendez"), or if the name is just 1 word, 1 match.
@@ -232,7 +298,7 @@ fotosMap.forEach(foto => {
     
     if (foundEmp) {
         foundEmp.fotoPath = foto; // store the foto object
-        mappedFolders.add(foto.parentFolder);
+        mappedFolders.add(foto.employeeFolder);
     } else {
         // Creating missing employee only if absolutely no match
         let capitalize = normalizeEmployeeName(foto.cleanName);
@@ -244,7 +310,7 @@ fotosMap.forEach(foto => {
             fotoPath: foto
         };
         employees.push(newEmp);
-        mappedFolders.add(foto.parentFolder);
+        mappedFolders.add(foto.employeeFolder);
         addedFromPhotos++;
         console.log(`[+] Añadido faltante recuperado desde la foto: ${newEmp.nombre}`);
     }
