@@ -355,6 +355,11 @@ let generatedCount = 0;
 employees.filter(e => e.nombre).forEach(emp => {
     let finalHtml = template;
     const slug = emp.slug || slugify(emp.nombre);
+    const userDistDir = path.join(distDir, slug);
+
+    if (!fs.existsSync(userDistDir)) {
+        fs.mkdirSync(userDistDir);
+    }
 
     const nombreParts = emp.nombre.split(' ');
     let nombreHTML = emp.nombre;
@@ -367,11 +372,14 @@ employees.filter(e => e.nombre).forEach(emp => {
     let fotoHTML = '';
     let previewSrc = '';
     if (emp.fotoPath) {
-        // Build browser-safe relative URLs from both the detail page and the root index.
-        const photoRelPath = path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/');
-        const absoluteRel = encodeURI(`../../${photoRelPath}`);
-        fotoHTML = `<img src="${absoluteRel}" alt="${emp.nombre}" class="profile-pic">`;
-        previewSrc = encodeURI(`./${photoRelPath}`);
+        // Copy the selected photo into the generated card folder to avoid fragile paths with accents/spaces.
+        const photoExt = path.extname(emp.fotoPath.fullPath).toLowerCase() || '.jpg';
+        const photoFileName = `profile${photoExt}`;
+        const copiedPhotoPath = path.join(userDistDir, photoFileName);
+        fs.copyFileSync(emp.fotoPath.fullPath, copiedPhotoPath);
+
+        fotoHTML = `<img src="./${photoFileName}" alt="${emp.nombre}" class="profile-pic">`;
+        previewSrc = `./dist/${slug}/${photoFileName}`;
     } else {
         const initials = emp.nombre.substring(0,2).toUpperCase();
         fotoHTML = `<div class="profile-icon">${initials}</div>`;
@@ -391,10 +399,6 @@ employees.filter(e => e.nombre).forEach(emp => {
     finalHtml = finalHtml.replace(/{{EMAIL_DISPLAY}}/g, emp.correo ? 'flex' : 'none');
     finalHtml = finalHtml.replace(/{{TEL_DISPLAY}}/g, emp.telefono ? 'flex' : 'none');
 
-    const userDistDir = path.join(distDir, slug);
-    if (!fs.existsSync(userDistDir)) {
-        fs.mkdirSync(userDistDir);
-    }
     const outputPath = path.join(userDistDir, 'index.html');
     fs.writeFileSync(outputPath, finalHtml);
     generatedCount++;
@@ -474,9 +478,7 @@ areasOrder.forEach(area => {
     masterLinksHTML += `<div class="area-grid">`;
     emps.forEach(emp => {
         const slug = emp.slug || slugify(emp.nombre);
-        const previewSrc = emp.fotoPath
-            ? encodeURI(`./${path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/')}`)
-            : '';
+        const previewSrc = emp.previewSrc || '';
         
         let miniThumbnail = '';
         if(previewSrc) {
