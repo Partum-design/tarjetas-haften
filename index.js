@@ -10,7 +10,18 @@ if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir);
 }
 
-const rawData = fs.readFileSync(dataFile, 'utf8');
+function fixMojibake(text) {
+    if (!text) return text;
+    if (!/[ÃÂâ€�]/.test(text)) return text;
+
+    const repaired = Buffer.from(text, 'latin1').toString('utf8');
+    const originalNoise = (text.match(/[ÃÂâ€�]/g) || []).length;
+    const repairedNoise = (repaired.match(/[ÃÂâ€�]/g) || []).length;
+
+    return repairedNoise < originalNoise ? repaired : text;
+}
+
+const rawData = fixMojibake(fs.readFileSync(dataFile, 'utf8'));
 const lines = rawData.split('\n').filter(line => line.trim() !== '');
 
 let employees = [];
@@ -332,7 +343,7 @@ fotosMap.forEach(foto => {
 // ---------------------------------------------------------------------------------------------------------
 // TEMPLATE ENGINE
 // ---------------------------------------------------------------------------------------------------------
-const template = fs.readFileSync(templateFile, 'utf8');
+const template = fixMojibake(fs.readFileSync(templateFile, 'utf8'));
 let generatedCount = 0;
 
 employees.filter(e => e.nombre).forEach(emp => {
@@ -350,11 +361,11 @@ employees.filter(e => e.nombre).forEach(emp => {
     let fotoHTML = '';
     let previewSrc = '';
     if (emp.fotoPath) {
-        // It's going to be in `dist/slug/index.html`, so to reach `fotos/` it is `../../fotos/...`
-        let absoluteRel = "../../" + path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/');
-        // Let's use file:/// URI to exactly map to the local file for consistency with the background video, or fallback to the relative. The user runs this locally.
+        // Build browser-safe relative URLs from both the detail page and the root index.
+        const photoRelPath = path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/');
+        const absoluteRel = encodeURI(`../../${photoRelPath}`);
         fotoHTML = `<img src="${absoluteRel}" alt="${emp.nombre}" class="profile-pic">`;
-        previewSrc = `./` + path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/');
+        previewSrc = encodeURI(`./${photoRelPath}`);
     } else {
         const initials = emp.nombre.substring(0,2).toUpperCase();
         fotoHTML = `<div class="profile-icon">${initials}</div>`;
