@@ -174,6 +174,7 @@ function cleanEmployeeFolderName(folderName) {
         .replace(/^\d+[_\.\-]?\s*/, '')
         .replace(/[_\-]\s*(ADM|ADMI|CONT|CONTAB|ING|LOG|MARKETING)\s*\d*$/i, '')
         .replace(/\s*-\s*(ADM|ADMI|CONT|CONTAB|ING|LOG|MARKETING)\s*$/i, '')
+        .replace(/ISSASI/i, 'ISASSI')
         .replace(/MORALESLUIS/i, 'MORALES LUIS')
         .replace(/GONZÁLES/i, 'GONZALEZ'));
 }
@@ -186,20 +187,25 @@ function isProfileJpgPhoto(fullPath) {
     return normalizePhotoPath(fullPath).includes('/foto de perfil/jpg/');
 }
 
+function isEmployeeJpegPhoto(fullPath) {
+    return normalizePhotoPath(fullPath).includes('/jpeg/');
+}
+
 function getPhotoCandidateScore(fullPath) {
     const normalizedPath = normalizePhotoPath(fullPath);
     const fileName = stripAccents(path.basename(fullPath)).toLowerCase().trim();
 
     if (isProfileJpgPhoto(fullPath)) return 0;
     if (normalizedPath.includes('/foto de perfil/') && fileName.includes('perfil')) return 1;
-    if (normalizedPath.includes('/fotos editadas/')) return 2;
+    if (isEmployeeJpegPhoto(fullPath)) return 2;
+    if (normalizedPath.includes('/fotos editadas/')) return 3;
     if (fileName.includes('perfil')) return 3;
     if (normalizedPath.includes('/gafete/')) return 8;
     return 5;
 }
 
 function getPhotoMeta(fullPath) {
-    if (!isProfileJpgPhoto(fullPath)) return null;
+    if (!isProfileJpgPhoto(fullPath) && !isEmployeeJpegPhoto(fullPath)) return null;
 
     const relParts = path.relative(fotosDir, fullPath).split(path.sep);
     if (relParts.length < 3) return null;
@@ -394,6 +400,14 @@ employees.filter(e => e.nombre).forEach(emp => {
     generatedCount++;
 });
 
+// Remove stale generated folders that no longer belong to a current employee.
+const expectedSlugs = new Set(employees.filter(e => e.nombre).map(emp => emp.slug || slugify(emp.nombre)));
+fs.readdirSync(distDir, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && !expectedSlugs.has(entry.name))
+    .forEach(entry => {
+        fs.rmSync(path.join(distDir, entry.name), { recursive: true, force: true });
+    });
+
 
 // ---------------------------------------------------------------------------------------------------------
 // MASTER DIRECTORY INDEX
@@ -401,9 +415,9 @@ employees.filter(e => e.nombre).forEach(emp => {
 function getArea(puesto) {
     if (!puesto) return 'Otros';
     const p = puesto.toLowerCase();
+    if (p.includes('ingenier') || p.includes('aplicación') || p.includes('hvac')) return 'Ingeniería';
     if (p.includes('ventas') || p.includes('negocios') || p.includes('comercial')) return 'Comercial y Ventas';
     if (p.includes('logística') || p.includes('almacén')) return 'Logística y Almacén';
-    if (p.includes('ingenier') || p.includes('aplicación') || p.includes('hvac')) return 'Ingeniería';
     if (p.includes('admin') || p.includes('recepción') || p.includes('contable') || p.includes('contador') || p.includes('cobrar') || p.includes('l.a.f')) return 'Administración y Finanzas';
     if (p.includes('director') || p.includes('gerente')) return 'Dirección y Gerencia';
     if (p.includes('marketing') || p.includes('mercadotecnia')) return 'Marketing';
@@ -460,11 +474,14 @@ areasOrder.forEach(area => {
     masterLinksHTML += `<div class="area-grid">`;
     emps.forEach(emp => {
         const slug = emp.slug || slugify(emp.nombre);
+        const previewSrc = emp.fotoPath
+            ? encodeURI(`./${path.relative(__dirname, emp.fotoPath.fullPath).replace(/\\/g, '/')}`)
+            : '';
         
         let miniThumbnail = '';
-        if(emp.previewSrc) {
+        if(previewSrc) {
             miniThumbnail = `<div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
-                <img src="${emp.previewSrc}" style="width:100%; height:100%; object-fit:cover; object-position:center 18%; transform:scale(1.14);" loading="lazy" decoding="async">
+                <img src="${previewSrc}" style="width:100%; height:100%; object-fit:cover; object-position:center 18%; transform:scale(1.14);" loading="lazy" decoding="async">
             </div>`;
         } else {
             miniThumbnail = `<div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">${emp.nombre.substring(0,2)}</div>`;
