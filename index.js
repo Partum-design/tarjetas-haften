@@ -65,13 +65,14 @@ const accentedWordMap = {
     'RAUL': 'RA\u00daL',
     'RODRIGUEZ': 'RODR\u00cdGUEZ',
     'ROMAN': 'ROM\u00c1N',
-    'SOLIS': 'SOL\u00cdS',
     'VAZQUEZ': 'V\u00c1ZQUEZ',
     'JESUS': 'JES\u00daS'
 };
 
 const fullNameCorrections = {
-    'GUILLERMO GONZALES CHARREZ': 'GUILLERMO GONZ\u00c1LES CH\u00c1RREZ'
+    'GUILLERMO GONZALES CHARREZ': 'GUILLERMO GONZ\u00c1LES CH\u00c1RREZ',
+    'ITZEL ISLAS SOLIS': 'ITZEL ISLAS SOLIS',
+    'MILTON ASIEL GARCIA ORTEGA': 'MILTON ASIEL GARCIA ORTEGA'
 };
 
 const likelyFirstNames = new Set([
@@ -117,6 +118,10 @@ function normalizeEmployeeName(rawName) {
     let name = normalizeSpacing(rawName);
     name = name.replace(/\s*\([^)]*\)\s*/g, ' ');
     name = normalizeSpacing(name);
+    const rawNormalizedKey = normalizeSpacing(stripAccents(name).toUpperCase());
+    if (rawNormalizedKey === 'MILTON ASIEL GARCIA ORTEGA') {
+        return 'MILTON ASIEL GARCIA ORTEGA';
+    }
     name = reorderNameToFirstNameLastName(name);
     name = applyAccentsAndUpper(name);
     const normalizedKey = normalizeSpacing(stripAccents(name).toUpperCase());
