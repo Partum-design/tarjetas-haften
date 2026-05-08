@@ -193,6 +193,11 @@ function getFileHash(fullPath) {
     return crypto.createHash('sha1').update(fs.readFileSync(fullPath)).digest('hex').slice(0, 8);
 }
 
+function getExistingProfileAsset(dir) {
+    if (!fs.existsSync(dir)) return null;
+    return fs.readdirSync(dir).find(file => /^profile(?:-[a-f0-9]{8})?\.(jpg|jpeg|png)$/i.test(file)) || null;
+}
+
 function isProfileJpgPhoto(fullPath) {
     return normalizePhotoPath(fullPath).includes('/foto de perfil/jpg/');
 }
@@ -381,6 +386,7 @@ employees.filter(e => e.nombre).forEach(emp => {
     // Construct the path so it works from `dist/slug/index.html` going all the way back to root `fotos/`
     let fotoHTML = '';
     let previewSrc = '';
+    const existingProfileAsset = getExistingProfileAsset(userDistDir);
     if (emp.fotoPath) {
         // Remove prior generated profile assets so stale browser/CDN caches cannot point to an old image.
         fs.readdirSync(userDistDir)
@@ -396,6 +402,9 @@ employees.filter(e => e.nombre).forEach(emp => {
 
         fotoHTML = `<img src="./${photoFileName}" alt="${emp.nombre}" class="profile-pic">`;
         previewSrc = `./dist/${slug}/${photoFileName}`;
+    } else if (existingProfileAsset) {
+        fotoHTML = `<img src="./${existingProfileAsset}" alt="${emp.nombre}" class="profile-pic">`;
+        previewSrc = `./dist/${slug}/${existingProfileAsset}`;
     } else {
         const initials = emp.nombre.substring(0,2).toUpperCase();
         fotoHTML = `<div class="profile-icon">${initials}</div>`;
