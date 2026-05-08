@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const dataFile = path.join(__dirname, 'data.txt');
 const templateFile = path.join(__dirname, 'template.html');
@@ -186,6 +187,10 @@ function cleanEmployeeFolderName(folderName) {
 
 function normalizePhotoPath(fullPath) {
     return stripAccents(fullPath).toLowerCase().trim().replace(/\\/g, '/');
+}
+
+function getFileHash(fullPath) {
+    return crypto.createHash('sha1').update(fs.readFileSync(fullPath)).digest('hex').slice(0, 8);
 }
 
 function isProfileJpgPhoto(fullPath) {
@@ -377,9 +382,15 @@ employees.filter(e => e.nombre).forEach(emp => {
     let fotoHTML = '';
     let previewSrc = '';
     if (emp.fotoPath) {
+        // Remove prior generated profile assets so stale browser/CDN caches cannot point to an old image.
+        fs.readdirSync(userDistDir)
+            .filter(file => /^profile(?:-[a-f0-9]{8})?\.(jpg|jpeg|png)$/i.test(file))
+            .forEach(file => fs.rmSync(path.join(userDistDir, file), { force: true }));
+
         // Copy the selected photo into the generated card folder to avoid fragile paths with accents/spaces.
         const photoExt = path.extname(emp.fotoPath.fullPath).toLowerCase() || '.jpg';
-        const photoFileName = `profile${photoExt}`;
+        const photoHash = getFileHash(emp.fotoPath.fullPath);
+        const photoFileName = `profile-${photoHash}${photoExt}`;
         const copiedPhotoPath = path.join(userDistDir, photoFileName);
         fs.copyFileSync(emp.fotoPath.fullPath, copiedPhotoPath);
 
