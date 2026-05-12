@@ -137,7 +137,7 @@ Tipo de Sangre: O +
 CURP: PIPJ910317HDFXCR01
 
 RODRIGO ALMARAZ OLMOS
-Puesto: Gerente de Aplicación de Producto / División Humidificación - Deshumidificación
+Puesto: Gerente de Aplicación de Producto
 Correo: rodrigo.almaraz@haften.com.mx
 WhatsApp / Celular: 55 80 07 03 99
 Tel. Oficina: 55 5638-1224
@@ -152,7 +152,7 @@ Tipo de Sangre: B +
 CURP: DICJ790201HTCZRN08
 
 JUAN CARLOS RODRÍGUEZ ARROYO
-Puesto: Gerente de Desarrollo de Negocios / Regional Desarrollo de Negocios Bajío - Occidente - Noroeste
+Puesto: Gerente de Desarrollo de Negocios
 Correo: juancarlos.rodriguez@haften.com.mx
 WhatsApp / Celular: 55 13 84 48 96
 Tel. Oficina: 55 5638-1224
@@ -202,7 +202,7 @@ Tipo de Sangre: O +
 CURP: ROML960825HMCMRS06
 
 MARCO ANTONIO ROJAS NAVA
-Puesto: Ingeniero de Aplicación de producto / División Humidificación - Deshumidificación
+Puesto: Ingeniero de Aplicación de Productos
 Correo: marco.rojas@haften.com.mx
 WhatsApp / Celular: 55 54 37 47 97
 Tel. Oficina: 55 5638-1224
