@@ -150,9 +150,10 @@ lines.forEach(line => {
             currentEmployee.nombre = normalizeEmployeeName(currentEmployee.nombre);
             employees.push(currentEmployee);
         }
+        const normalizedName = normalizeEmployeeName(line.trim());
         currentEmployee = {
-            slug: slugify(line.trim()),
-            nombre: normalizeEmployeeName(line.trim())
+            slug: slugify(normalizedName),
+            nombre: normalizedName
         };
     }
 });
@@ -206,11 +207,18 @@ function isEmployeeJpegPhoto(fullPath) {
     return normalizePhotoPath(fullPath).includes('/jpeg/');
 }
 
+function isDirectProfilePhoto(fullPath) {
+    const relParts = path.relative(fotosDir, fullPath).split(path.sep);
+    const fileName = stripAccents(path.basename(fullPath)).toLowerCase().trim();
+    return relParts.length === 3 && fileName.includes('perfil');
+}
+
 function getPhotoCandidateScore(fullPath) {
     const normalizedPath = normalizePhotoPath(fullPath);
     const fileName = stripAccents(path.basename(fullPath)).toLowerCase().trim();
 
     if (isProfileJpgPhoto(fullPath)) return 0;
+    if (isDirectProfilePhoto(fullPath)) return 0;
     if (normalizedPath.includes('/foto de perfil/') && fileName.includes('perfil')) return 1;
     if (isEmployeeJpegPhoto(fullPath)) return 2;
     if (normalizedPath.includes('/fotos editadas/')) return 3;
@@ -220,10 +228,10 @@ function getPhotoCandidateScore(fullPath) {
 }
 
 function getPhotoMeta(fullPath) {
-    if (!isProfileJpgPhoto(fullPath) && !isEmployeeJpegPhoto(fullPath)) return null;
+    if (!isProfileJpgPhoto(fullPath) && !isEmployeeJpegPhoto(fullPath) && !isDirectProfilePhoto(fullPath)) return null;
 
     const relParts = path.relative(fotosDir, fullPath).split(path.sep);
-    if (relParts.length < 3) return null;
+    if (relParts.length < 2) return null;
 
     const areaFolder = relParts[0];
     const employeeFolder = relParts[1];

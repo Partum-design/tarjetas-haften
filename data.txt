@@ -127,7 +127,7 @@ NSS: 37048108452
 Tipo de Sangre: O +
 CURP: SOMJ811110HDFSRR18
 
-JORGE PABLO PIÑA PACHECO
+PABLO PIÑA PACHECO
 Puesto: Ingeniero de Aplicación de producto / Zona Occidente
 Correo: pablo.pina@haften.com.mx
 WhatsApp / Celular: 55 80 07 04 11
@@ -136,7 +136,7 @@ NSS: ( 0 1119103404 )
 Tipo de Sangre: O +
 CURP: PIPJ910317HDFXCR01
 
-JOSÉ RODRIGO ALMARAZ OLMOS (RODRIGO ALMARAZ OLMOS)
+RODRIGO ALMARAZ OLMOS
 Puesto: Gerente de Aplicación de Producto / División Humidificación - Deshumidificación
 Correo: rodrigo.almaraz@haften.com.mx
 WhatsApp / Celular: 55 80 07 03 99
@@ -228,8 +228,8 @@ Correo: mariana.flores@haften.com.mx
 WhatsApp / Celular: 55 56 38 12 24
 Tel. Oficina: 55 5638-1224
 
-MARIO HASAEL ROMAN FLORES
-Puesto: Ingeniero de Aplicación de producto / División Humidificación - Deshumidificación
+MARIO H. ROMAN FLORES
+Puesto: Ingeniero de Aplicación de producto / División Humidificación
 Correo: mario.roman@haften.com.mx
 WhatsApp / Celular: 55 80 14 15 21
 Tel. Oficina: 55 5638-1224
