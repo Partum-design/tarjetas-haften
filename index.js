@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const XLSX = require('xlsx');
 
 const dataFile = path.join(__dirname, 'data.txt');
 const templateFile = path.join(__dirname, 'template.html');
 const distDir = path.join(__dirname, 'dist');
 const fotosDir = path.join(__dirname, 'fotos');
+const excelAuthorityFile = path.join(__dirname, 'base_datos', '2026 FORMATO REQUERIMIENTOS DATOS CREDENCIALIZACION.xlsx');
 
 if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir);
@@ -36,6 +38,250 @@ function normalizeSpacing(text) {
 
 function stripAccents(text) {
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function normalizeAuthorityName(text) {
+    return normalizeSpacing(stripAccents(text || '').toUpperCase())
+        .replace(/\bING\.?\s+/g, '')
+        .replace(/[^\w\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function loadAuthorityEmployees() {
+    const workbook = XLSX.readFile(excelAuthorityFile);
+    const worksheet = workbook.Sheets['Tarjetas de acceso 2026'] || workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+    const supplementalEmployees = [
+        {
+            nombre: 'Ing. ALFONSO RIVERA LÓPEZ',
+            puesto: 'DIRECTOR GENERAL',
+            correo: 'alfonso.rivera@haften.com.mx',
+            whatsapp: '5519918173',
+            telefono: '5556381224'
+        },
+        {
+            nombre: 'Ruben Quiroz Aldana',
+            puesto: 'Contador',
+            correo: 'ruben.quiroz@haften.com.mx',
+            whatsapp: '55 5638-1224',
+            telefono: '55 5638-1224'
+        },
+        {
+            nombre: 'Ana Alicia García Aguilar',
+            puesto: 'Recepción',
+            correo: 'anali.garcia@haften.com.mx',
+            whatsapp: '55 5638-1224',
+            telefono: '55 5638-1224'
+        }
+    ];
+
+    return rows
+        .slice(2)
+        .map((row) => ({
+            nombre: normalizeSpacing(String(row[0] || '')),
+            puesto: normalizeSpacing(String(row[1] || '')),
+            correo: normalizeSpacing(String(row[2] || '')).toLowerCase(),
+            whatsapp: normalizeSpacing(String(row[3] || '')),
+            telefono: normalizeSpacing(String(row[4] || ''))
+        }))
+        .filter((row) => row.nombre)
+        .concat(supplementalEmployees);
+}
+
+const authorityAliases = new Map([
+    ['GUILLERMO GONZALEZ CHARREZ', 'GUILLERMO GONZALEZ CHAVEZ'],
+    ['ING JORGE EDUARDO SOSA MARTINEZ', 'JORGE EDUARDO SOSA MARTINEZ'],
+    ['PABLO PINA PACHECO', 'JORGE PABLO PINA PACHECO'],
+    ['RODRIGO ALMARAZ OLMOZ', 'RODRIGO ALMARAZ OLMOS'],
+    ['JUAN CARLOS RODRIGUEZ A', 'JUAN CARLOS RODRIGUEZ ARROYO'],
+    ['ENRIQUE CHARREZ MEZQUITE', 'LUIS ENRIQUE CHARREZ MEZQUITE'],
+    ['MARIO H ROMAN FLORES', 'MARIO HASSEL ROMAN FLORES'],
+    ['ING ALFONSO RIVERA LOPEZ', 'ALFONSO RIVERA']
+]);
+
+const authorityEmployees = loadAuthorityEmployees();
+const authorityByName = new Map(authorityEmployees.map((employee) => [normalizeAuthorityName(employee.nombre), employee]));
+const authorityByEmail = new Map(
+    authorityEmployees
+        .filter((employee) => employee.correo)
+        .map((employee) => [employee.correo.toLowerCase(), employee])
+);
+
+const employeeOverridesByEmail = {
+    'alfonso.rivera@haften.com.mx': {
+        nombre: 'Ing. ALFONSO RIVERA LÓPEZ',
+        puesto: 'DIRECTOR GENERAL',
+        correo: 'alfonso.rivera@haften.com.mx',
+        whatsapp: '5519918173',
+        telefono: '5556381224'
+    },
+    'jorge.sosa@haften.com.mx': {
+        nombre: 'Ing. JORGE EDUARDO SOSA MARTÍNEZ',
+        puesto: 'Gerente de Aplicaciones HVAC/R-BAS',
+        correo: 'jorge.sosa@haften.com.mx',
+        whatsapp: '5545118038',
+        telefono: '5556381224'
+    },
+    'guillermo.gonzalez@haften.com.mx': {
+        nombre: 'GUILLERMO GONZÁLEZ CHÁVEZ',
+        puesto: 'Coordinador de ingenieria',
+        correo: 'guillermo.gonzalez@haften.com.mx',
+        whatsapp: '5580070402',
+        telefono: '5556381224'
+    },
+    'enrique.charrez@haften.com.mx': {
+        nombre: 'Enrique Charrez Mezquite',
+        puesto: 'Ingeniero De Aplicación de producto / División HVAC/R BMS',
+        correo: 'enrique.charrez@haften.com.mx',
+        whatsapp: '5551837923',
+        telefono: '5556381224'
+    },
+    'abril.martinez@haften.com.mx': {
+        nombre: 'ABRIL ALEJANDRA MARTÍNEZ',
+        puesto: 'Ingeniero de ventas JR',
+        correo: 'abril.martinez@haften.com.mx',
+        whatsapp: '525580070414',
+        telefono: '5556381224'
+    },
+    'milton.garcia@haften.com.mx': {
+        nombre: 'MILTON ASIEL GARCIA ORTEGA',
+        puesto: 'Ingeniero de ventas JR',
+        correo: 'milton.garcia@haften.com.mx',
+        whatsapp: '525580070400',
+        telefono: '5556381224'
+    },
+    'esteban.cano@haften.com.mx': {
+        nombre: 'ESTEBAN CANO ROA',
+        puesto: 'Ingeniero de ventas JR',
+        correo: 'esteban.cano@haften.com.mx',
+        whatsapp: '5599115891',
+        telefono: '5556381224'
+    },
+    'itzel.islas@haften.com.mx': {
+        nombre: 'ITZEL ISLAS SOLIS',
+        puesto: 'Ingeniero de ventas JR',
+        correo: 'Itzel.islas@haften.com.mx',
+        whatsapp: '5599115864',
+        telefono: '5556381224'
+    },
+    'juan.gomez@haften.com.mx': {
+        nombre: 'JUAN GÓMEZ CARMONA',
+        puesto: 'Ingeniero de ventas JR',
+        correo: 'Juan.gomez@haften.com.mx',
+        whatsapp: '525580070406',
+        telefono: '5556381224'
+    },
+    'mariana.garcia@haften.com.mx': {
+        nombre: 'MARIANA GARCÍA GARCÍA',
+        puesto: 'Ingeniero de ventas JR',
+        correo: 'mariana.garcia@haften.com.mx',
+        whatsapp: '5599115895',
+        telefono: '5556381224'
+    },
+    'juancarlos.rodriguez@haften.com.mx': {
+        nombre: 'Juan Carlos Rodriguez Arroyo',
+        puesto: 'Gerente de Desarrollo de Negocios',
+        correo: 'juancarlos.rodriguez@haften.com.mx',
+        whatsapp: '5513844896',
+        telefono: '5556381224'
+    },
+    'pablo.pina@haften.com.mx': {
+        nombre: 'PABLO PIÑA PACHECO',
+        puesto: 'Ingeniero de Aplicación de producto / Desarrollo de Negocios / ZONA OCCIDENTE',
+        correo: 'pablo.pina@haften.com.mx',
+        whatsapp: '5580070411',
+        telefono: '5556381224'
+    },
+    'victor.contreras@haften.com.mx': {
+        nombre: 'VICTOR HUGO CONTRERAS CASTAÑEDA',
+        puesto: 'Ing. de Proyectos / Regional Desarrollo de Negocios / ZONA CENTRO',
+        correo: 'victor.contreras@haften.com.mx',
+        whatsapp: '5554538121',
+        telefono: '5556381224'
+    },
+    'david.gallardo@haften.com.mx': {
+        nombre: 'MARCOS DAVID GALLARDO BAUTISTA',
+        puesto: 'Ingeniero regional desarrollo de negocios / Zona SURESTE',
+        correo: 'david.gallardo@haften.com.mx',
+        whatsapp: '9988458338',
+        telefono: '5556381224'
+    },
+    'omar.isassi@haften.com.mx': {
+        nombre: 'OMAR ISASSI GARCÍA',
+        puesto: 'Ingeniero regional desarrollo de negocios / Zona NORESTE',
+        correo: 'omar.isassi@haften.com.mx',
+        whatsapp: '8118222385',
+        telefono: '5556381224'
+    },
+    'erick.carrizales@haften.com.mx': {
+        nombre: 'ERICK ALBERTO CARRIZALES GARCÍA',
+        puesto: 'Ingeniero de ventas JR /Zona NORESTE',
+        correo: 'Erick.carrizales@haften.com.mx',
+        whatsapp: '8131050568',
+        telefono: '5556381224'
+    },
+    'alberto.ramirez@haften.com.mx': {
+        nombre: 'EDGAR ALBERTO RAMÍREZ ESCAMILLA',
+        puesto: 'Ingeniero Líder de Marca VAISALA',
+        correo: 'alberto.ramirez@haften.com.mx',
+        whatsapp: '5580070398',
+        telefono: '5556381224'
+    },
+    'isael.vazquez@haften.com.mx': {
+        nombre: 'ISAEL VÁZQUEZ DE JESÚS',
+        puesto: 'Ingeniero Líder de Marca Johnson Controls',
+        correo: 'isael.vazquez@haften.com.mx',
+        whatsapp: '5580070407',
+        telefono: '5556381224'
+    },
+    'rodrigo.almaraz@haften.com.mx': {
+        nombre: 'RODRIGO ALMARAZ OLMOS',
+        puesto: 'Gerente de Aplicación de Producto / Div. Humidificación, Deshumidificación y Calefactores Eléctricos',
+        correo: 'rodrigo.almaraz@haften.com.mx',
+        whatsapp: '5580070399',
+        telefono: '5556381224'
+    },
+    'mario.roman@haften.com.mx': {
+        nombre: 'MARIO HASSEL ROMAN FLORES',
+        puesto: 'Ingeniero de Aplicación de producto / Div. Humidificación, Deshumidificación y Calefactores Eléctricos',
+        correo: 'mario.roman@haften.com.mx',
+        whatsapp: '5580141521',
+        telefono: '5556381224'
+    },
+    'marco.rojas@haften.com.mx': {
+        nombre: 'Marco Antonio Rojas Nava',
+        puesto: 'Ingeniero de Aplicación de producto / Div. Humidificación, Deshumidificación y Calefactores Eléctricos',
+        correo: 'marco.rojas@haften.com.mx',
+        whatsapp: '5554374797',
+        telefono: '5556381224'
+    }
+    ,
+    'laura.mendez@haften.com.mx': {
+        nombre: 'LAURA ELIZABETH MÉNDEZ MARTÍNEZ',
+        puesto: 'Lic. Marketing',
+        correo: 'laura.mendez@haften.com.mx',
+        whatsapp: '5580070413',
+        telefono: '5556381224'
+    },
+    'servando.gomez@haften.com.mx': {
+        nombre: 'SERVANDO GOMEZ RIVERA',
+        puesto: 'Jefe de Logística',
+        correo: 'servando.gomez@haften.com.mx',
+        whatsapp: '5580632855',
+        telefono: '5556381224'
+    }
+};
+
+function resolveAuthorityEmployee({ nombre, correo }) {
+    const emailKey = normalizeSpacing((correo || '').toLowerCase());
+    if (emailKey && authorityByEmail.has(emailKey)) {
+        return authorityByEmail.get(emailKey);
+    }
+
+    const normalizedName = normalizeAuthorityName(nombre);
+    const aliasName = authorityAliases.get(normalizedName) || normalizedName;
+    return authorityByName.get(aliasName) || null;
 }
 
 const accentedWordMap = {
@@ -162,6 +408,31 @@ if (currentEmployee && currentEmployee.nombre) {
     currentEmployee.nombre = normalizeEmployeeName(currentEmployee.nombre);
     employees.push(currentEmployee);
 }
+
+const seenAuthorityEmployees = new Set();
+employees = employees.reduce((acc, employee) => {
+    const authorityEmployee = resolveAuthorityEmployee(employee);
+    if (!authorityEmployee) return acc;
+
+    const authorityKey = normalizeAuthorityName(authorityEmployee.nombre);
+    if (seenAuthorityEmployees.has(authorityKey)) return acc;
+    seenAuthorityEmployees.add(authorityKey);
+
+    acc.push({
+        ...employee,
+        slug: slugify(authorityEmployee.nombre),
+        nombre: authorityEmployee.nombre,
+        correo: authorityEmployee.correo || employee.correo,
+        puesto: employee.puesto || authorityEmployee.puesto
+    });
+    return acc;
+}, []);
+
+employees = employees.map((employee) => {
+    const emailKey = normalizeSpacing((employee.correo || '').toLowerCase());
+    const override = employeeOverridesByEmail[emailKey];
+    return override ? { ...employee, ...override } : employee;
+});
 
 function slugify(text) {
     return text.toString().toLowerCase()
@@ -369,14 +640,25 @@ fotosMap.forEach(foto => {
             mappedFolders.add(foto.employeeFolder);
             return;
         }
+        const authorityEmployee = resolveAuthorityEmployee({ nombre: capitalize, correo: '' });
+        if (!authorityEmployee) {
+            mappedFolders.add(foto.employeeFolder);
+            return;
+        }
+        const authorityKey = normalizeAuthorityName(authorityEmployee.nombre);
+        if (seenAuthorityEmployees.has(authorityKey)) {
+            mappedFolders.add(foto.employeeFolder);
+            return;
+        }
         let newEmp = {
-            slug: slugify(foto.cleanName),
-            nombre: capitalize,
-            puesto: 'Especialista en ' + foto.baseArea,
-            correo: capitalize.split(' ')[0].toLowerCase() + '@haften.com.mx',
+            slug: slugify(authorityEmployee.nombre),
+            nombre: authorityEmployee.nombre,
+            puesto: authorityEmployee.puesto || ('Especialista en ' + foto.baseArea),
+            correo: authorityEmployee.correo || (capitalize.split(' ')[0].toLowerCase() + '@haften.com.mx'),
             fotoPath: foto
         };
         employees.push(newEmp);
+        seenAuthorityEmployees.add(authorityKey);
         mappedFolders.add(foto.employeeFolder);
         addedFromPhotos++;
         console.log(`[+] Añadido faltante recuperado desde la foto: ${newEmp.nombre}`);
@@ -406,26 +688,31 @@ const officeLocations = {
 };
 
 const roleOverridesByEmail = {
-    'mariana.garcia@haften.com.mx': 'INGENIERO DE VENTAS JR',
-    'juan.gomez@haften.com.mx': 'INGENIERO DE VENTAS JR',
-    'victor.contreras@haften.com.mx': 'ING. DE PROYECTOS REGIONAL DESARROLLO DE NEGOCIOS  /  ZONA CENTRO',
+    'mariana.garcia@haften.com.mx': 'Ingeniero de ventas JR',
+    'juan.gomez@haften.com.mx': 'Ingeniero de ventas JR',
+    'victor.contreras@haften.com.mx': 'Ing. de Proyectos / Regional Desarrollo de Negocios / ZONA CENTRO',
     'enrique.charrez@haften.com.mx': 'INGENIERO DE APLICACIÓN DE PRODUCTO DIVISIÓN HVAC/R-BMS',
-    'milton.garcia@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'milton.garcia@haften.com.mx': 'Ingeniero de ventas JR',
     'isael.vazquez@haften.com.mx': 'INGENIERO LÍDER DE MARCA JOHNSON CONTROLS',
-    'abril.martinez@haften.com.mx': 'INGENIERO DE VENTAS JR',
-    'esteban.cano@haften.com.mx': 'INGENIERO DE VENTAS JR',
-    'jorge.sosa@haften.com.mx': 'GERENTE DE APLICACIONES HVAC/R-BMS',
+    'abril.martinez@haften.com.mx': 'Ingeniero de ventas JR',
+    'esteban.cano@haften.com.mx': 'Ingeniero de ventas JR',
+    'jorge.sosa@haften.com.mx': 'Gerente de Aplicaciones HVAC/R-BAS',
     'guillermo.gonzalez@haften.com.mx': 'COORDINADOR DE INGENIERÍA',
     'alberto.ramirez@haften.com.mx': 'INGENIERO LÍDER DE MARCA VAISALA',
-    'itzel.islas@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'itzel.islas@haften.com.mx': 'Ingeniero de ventas JR',
     'omar.isassi@haften.com.mx': 'INGENIERO REGIONAL DESARROLLO DE NEGOCIOS ZONA NORESTE',
     'marco.rojas@haften.com.mx': 'INGENIERO DE APLICACIÓN DE PRODUCTO / DIV. HUMIDIFICACIÓN, DESHUMIDIFICACIÓN Y CALEFACTORES ELÉCTRICOS',
     'alfonso.rivera@haften.com.mx': 'DIRECTOR GENERAL',
     'pablo.pina@haften.com.mx': 'INGENIERO REGIONAL DESARROLLO DE NEGOCIOS ZONA OCCIDENTE',
-    'juancarlos.rodriguez@haften.com.mx': 'GERENTE DE DESARROLLO DE NEGOCIOS',
+    'juancarlos.rodriguez@haften.com.mx': 'Gerente de Desarrollo de Negocios',
     'rodrigo.almaraz@haften.com.mx': 'GERENTE DE APLICACIÓN DE PRODUCTO / DIV. HUMIDIFICACIÓN, DESHUMIDIFICACIÓN Y CALEFACTORES ELÉCTRICOS',
     'mario.roman@haften.com.mx': 'INGENIERO DE APLICACIÓN DE PRODUCTO / DIV. HUMIDIFICACIÓN, DESHUMIDIFICACIÓN Y CALEFACTORES ELÉCTRICOS',
-    'israel.calixto@haften.com.mx': 'GERENTE DE ADMINISTRACIÓN',
+    'israel.calixto@haften.com.mx': 'Gerente de Administración',
+    'fabian.luna@haften.com.mx': 'Cuentas por cobrar',
+    'nancy.saavedra@haften.com.mx': 'Asistente Administrativo',
+    'mariana.flores@haften.com.mx': 'Asistente Administrativo',
+    'laura.mendez@haften.com.mx': 'Lic. Marketing',
+    'servando.gomez@haften.com.mx': 'Jefe de Logística',
     'erick.carrizales@haften.com.mx': 'INGENIERO DE VENTAS JR / ZONA NORESTE'
 };
 
@@ -436,6 +723,21 @@ const displayNameOverridesByEmail = {
 const displayNameHtmlOverridesByEmail = {
     'israel.calixto@haften.com.mx': '<strong>L.C.P./ M.D.F</strong><br>ISRAEL CALIXTO REBOLLEDO'
 };
+
+function normalizeDisplayRole(role) {
+    const normalizedRole = fixMojibake(normalizeSpacing(role || ''));
+    const roleKey = stripAccents(normalizedRole).toLowerCase();
+
+    if (roleKey === 'jefe de logistica') {
+        return 'Jefe de Logística';
+    }
+
+    if (roleKey.includes('logistica') || roleKey.includes('almacen')) {
+        return 'Logística';
+    }
+
+    return normalizedRole;
+}
 
 function getOfficeLocationForEmployee(emp) {
     const normalizedName = normalizeSpacing(stripAccents(emp.nombre || '').toUpperCase());
@@ -448,6 +750,7 @@ function getOfficeLocationForEmployee(emp) {
         location = officeLocations.monterrey;
     } else if ([
         'JUAN CARLOS RODRIGUEZ A.',
+        'JUAN CARLOS RODRIGUEZ ARROYO',
         'PABLO PINA PACHECO'
     ].includes(normalizedName)) {
         location = officeLocations.guadalajara;
@@ -463,13 +766,29 @@ employees.filter(e => e.nombre).forEach(emp => {
     let finalHtml = template;
     const slug = emp.slug || slugify(emp.nombre);
     const userDistDir = path.join(distDir, slug);
-    const officeLocation = getOfficeLocationForEmployee(emp);
     const emailKey = (emp.correo || '').toLowerCase();
-    const displayName = displayNameOverridesByEmail[emailKey] || emp.nombre;
+    const exactOverride = employeeOverridesByEmail[emailKey];
 
     if (roleOverridesByEmail[emailKey]) {
         emp.puesto = roleOverridesByEmail[emailKey];
     }
+    if (exactOverride) {
+        emp.nombre = exactOverride.nombre || emp.nombre;
+        emp.puesto = exactOverride.puesto || emp.puesto;
+        emp.correo = exactOverride.correo || emp.correo;
+        emp.whatsapp = exactOverride.whatsapp || emp.whatsapp;
+        emp.telefono = exactOverride.telefono || emp.telefono;
+    }
+    if (emailKey === 'servando.gomez@haften.com.mx') {
+        emp.puesto = 'Jefe de Logística';
+    }
+    emp.puesto = normalizeDisplayRole(emp.puesto);
+    const officeLocation = getOfficeLocationForEmployee(emp);
+    if (officeLocation.sede === 'Oficinas Centrales') {
+        officeLocation.direccion = 'Tehuantepec 125, Roma Sur, 06760 Ciudad de México, CDMX, México';
+        officeLocation.mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(officeLocation.direccion)}`;
+    }
+    const displayName = displayNameOverridesByEmail[emailKey] || emp.nombre;
 
     if (!fs.existsSync(userDistDir)) {
         fs.mkdirSync(userDistDir);
