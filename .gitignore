@@ -27,3 +27,6 @@ fotos/**/*.png
 !fotos/**/FOTO DE PERFIL/JPG/
 !fotos/**/FOTO DE PERFIL/JPG/PERFIL.jpg
 !fotos/**/FOTO DE PERFIL/JPG/PERFIL.JPG
+
+# Editor
+.vscode/

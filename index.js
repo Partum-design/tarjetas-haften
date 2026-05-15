@@ -58,6 +58,7 @@ const accentedWordMap = {
     'INGENIERIA': 'INGENIER\u00cdA',
     'JOSE': 'JOS\u00c9',
     'LOGISTICA': 'LOG\u00cdSTICA',
+    'LOPEZ': 'L\u00d3PEZ',
     'MARTINEZ': 'MART\u00cdNEZ',
     'MEDICION': 'MEDICI\u00d3N',
     'MENDEZ': 'M\u00c9NDEZ',
