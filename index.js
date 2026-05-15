@@ -315,6 +315,15 @@ function areSimilarTokens(a, b) {
 }
 
 let addedFromPhotos = 0;
+const excludedEmployeeNames = new Set([
+    'ALEJANDRA ROMERO MORALES',
+    'HANIN ESCAMILLA',
+    'NORMA ANGELICA CONTRERAS CASTANEDA',
+    'CIRILO BOMAYE CATHI',
+    'ELIZABETH HERNANDEZ FLORES',
+    'RAMIRO ROMERO CHAVEZ',
+    'RAUL CORIA AYALA'
+]);
 
 // Sort fotosMap to favor profile photos, then edited photos, then regular camera files.
 fotosMap.sort((a,b) => {
@@ -355,6 +364,11 @@ fotosMap.forEach(foto => {
     } else {
         // Creating missing employee only if absolutely no match
         let capitalize = normalizeEmployeeName(foto.cleanName);
+        const normalizedCandidate = normalizeSpacing(stripAccents(capitalize).toUpperCase());
+        if (excludedEmployeeNames.has(normalizedCandidate)) {
+            mappedFolders.add(foto.employeeFolder);
+            return;
+        }
         let newEmp = {
             slug: slugify(foto.cleanName),
             nombre: capitalize,

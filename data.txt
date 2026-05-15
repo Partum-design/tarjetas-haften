@@ -4,11 +4,6 @@ Correo: abril.martinez@haften.com.mx
 WhatsApp / Celular: 52 (55) 80 07 04 14
 Tel. Oficina: 52 55 5638 1224
 
-ALEJANDRA ROMERO MORALES
-Puesto: Auxiliar contable
-NSS: 37139407177
-Tipo de Sangre: O +
-CURP: ROMA940707MDFMRL09
 
 ING. ALFONSO RIVERA LÓPEZ
 Puesto: Director General
@@ -40,11 +35,6 @@ Correo: fabian.luna@haften.com.mx
 WhatsApp / Celular: 56 31 62 83 23
 Tel. Oficina: 52 55 5638 1224
 
-CIRILO BOMAYE CATHI
-Puesto: Ingeniero de Aplicación de producto
-NSS: 30129409964
-Tipo de Sangre: A +
-CURP: BOCC940103HHGMTR04
 
 EDGAR ALBERTO RAMÍREZ ESCAMILLA
 Puesto: Ingeniero Líder de Marca Vaisala
@@ -55,11 +45,6 @@ NSS: ( 0 1119246534 )
 Tipo de Sangre: O / HR +
 CURP: RAEE920807HDFMSD07
 
-ELIZABETH HERNANDEZ FLORES
-Puesto: Ingeniero de Aplicación de producto
-NSS: 37058000060
-Tipo de Sangre: O +
-CURP: HEFE800319MDFRLL06
 
 ERICK ALBERTO CARRIZALES GARCÍA
 Puesto: Ingeniero de ventas JR / Zona Noreste
@@ -82,10 +67,6 @@ NSS: 90078906840
 Tipo de Sangre: O +
 CURP: GOCG890111HDFNHL03
 
-HANIN ESCAMILLA
-Puesto: L.A.F
-Correo: hanin@haften.com.mx
-Tipo de Sangre: O+
 
 HECTOR RODRIGUEZ TORRES
 Puesto: Ingeniero De Aplicación de producto / División HVAC/R BMS
@@ -147,11 +128,6 @@ NSS: (07119215494
 Tipo de Sangre: B -
 CURP: AAOR921217HDFLLD06
 
-JUAN CARLOS DIAZ CARRERA
-Puesto: Desarrollador de Negocios Zona Sureste
-NSS: 83947938078
-Tipo de Sangre: B +
-CURP: DICJ790201HTCZRN08
 
 JUAN CARLOS RODRÍGUEZ A.
 Puesto: Gerente de Desarrollo de Negocios
@@ -251,12 +227,6 @@ Correo: nancy.saavedra@haften.com.mx
 WhatsApp / Celular: 55 27 86 75 71
 Tel. Oficina: 52 55 5638 1224
 
-NORMA ANGÉLICA CONTRERAS CASTAÑEDA
-Puesto: Auxiliar contable
-NSS: 42068710708
-Tipo de Sangre: O +
-CURP: COCN870430MDFNSR03
-
 OMAR ISASSI GARCIA
 Puesto: Ingeniero Regional Desarrollo de Negocios Zona Noreste
 Correo: omar.isassi@haften.com.mx
@@ -272,17 +242,7 @@ NSS: 89846607292
 Tipo de Sangre: O +
 CURP: TOPP661210HMCRRL06
 
-RAMIRO ROMERO CHAVEZ
-Puesto: Logística
-NSS: (01974580316
-Tipo de Sangre: O +
-CURP: ROCR5805ROHMNMHM08
 
-RAUL CORIA AYALA
-Puesto: Desarrollo de Negocios Centro
-NSS: ( 0 7119201833 )
-Tipo de Sangre: A +
-CURP: COAL920620NDRYS02
 
 SERVANDO GOMEZ RIVERA
 Puesto: Jefe de Logística / Logística de Almacén
