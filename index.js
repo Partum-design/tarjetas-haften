@@ -415,6 +415,14 @@ const roleOverridesByEmail = {
     'erick.carrizales@haften.com.mx': 'INGENIERO DE VENTAS JR / ZONA NORESTE'
 };
 
+const displayNameOverridesByEmail = {
+    'israel.calixto@haften.com.mx': 'L.C.P./ M.D.F ISRAEL CALIXTO REBOLLEDO'
+};
+
+const displayNameHtmlOverridesByEmail = {
+    'israel.calixto@haften.com.mx': '<strong>L.C.P./ M.D.F</strong><br>ISRAEL CALIXTO REBOLLEDO'
+};
+
 function getOfficeLocationForEmployee(emp) {
     const normalizedName = normalizeSpacing(stripAccents(emp.nombre || '').toUpperCase());
     let location = officeLocations.cdmx;
@@ -443,6 +451,7 @@ employees.filter(e => e.nombre).forEach(emp => {
     const userDistDir = path.join(distDir, slug);
     const officeLocation = getOfficeLocationForEmployee(emp);
     const emailKey = (emp.correo || '').toLowerCase();
+    const displayName = displayNameOverridesByEmail[emailKey] || emp.nombre;
 
     if (roleOverridesByEmail[emailKey]) {
         emp.puesto = roleOverridesByEmail[emailKey];
@@ -452,9 +461,9 @@ employees.filter(e => e.nombre).forEach(emp => {
         fs.mkdirSync(userDistDir);
     }
 
-    const nombreParts = emp.nombre.split(' ');
-    let nombreHTML = emp.nombre;
-    if (nombreParts.length > 1) {
+    const nombreParts = displayName.split(' ');
+    let nombreHTML = displayNameHtmlOverridesByEmail[emailKey] || displayName;
+    if (!displayNameHtmlOverridesByEmail[emailKey] && nombreParts.length > 1) {
         const first = nombreParts.shift();
         nombreHTML = `<strong>${first}</strong> <br>${nombreParts.join(' ')}`;
     }
@@ -476,13 +485,13 @@ employees.filter(e => e.nombre).forEach(emp => {
         const copiedPhotoPath = path.join(userDistDir, photoFileName);
         fs.copyFileSync(emp.fotoPath.fullPath, copiedPhotoPath);
 
-        fotoHTML = `<img src="./${photoFileName}" alt="${emp.nombre}" class="profile-pic">`;
+        fotoHTML = `<img src="./${photoFileName}" alt="${displayName}" class="profile-pic">`;
         previewSrc = `./dist/${slug}/${photoFileName}`;
     } else if (existingProfileAsset) {
-        fotoHTML = `<img src="./${existingProfileAsset}" alt="${emp.nombre}" class="profile-pic">`;
+        fotoHTML = `<img src="./${existingProfileAsset}" alt="${displayName}" class="profile-pic">`;
         previewSrc = `./dist/${slug}/${existingProfileAsset}`;
     } else {
-        const initials = emp.nombre.substring(0,2).toUpperCase();
+        const initials = displayName.substring(0,2).toUpperCase();
         fotoHTML = `<div class="profile-icon">${initials}</div>`;
     }
     
@@ -490,7 +499,7 @@ employees.filter(e => e.nombre).forEach(emp => {
 
     finalHtml = finalHtml.replace(/{{FOTO_HTML}}/g, fotoHTML);
     finalHtml = finalHtml.replace(/{{NOMBRE_HTML}}/g, nombreHTML);
-    finalHtml = finalHtml.replace(/{{NOMBRE}}/g, emp.nombre);
+    finalHtml = finalHtml.replace(/{{NOMBRE}}/g, displayName);
     finalHtml = finalHtml.replace(/{{PUESTO}}/g, emp.puesto || 'Haften Team');
     finalHtml = finalHtml.replace(/{{CORREO}}/g, emp.correo || '');
     finalHtml = finalHtml.replace(/{{WHATSAPP}}/g, emp.whatsapp || '');
