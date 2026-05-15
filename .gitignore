@@ -30,3 +30,4 @@ fotos/**/*.png
 
 # Editor
 .vscode/
+.vercel

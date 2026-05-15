@@ -391,6 +391,30 @@ const officeLocations = {
     }
 };
 
+const roleOverridesByEmail = {
+    'mariana.garcia@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'juan.gomez@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'victor.contreras@haften.com.mx': 'ING. DE PROYECTOS REGIONAL DESARROLLO DE NEGOCIOS  /  ZONA CENTRO',
+    'enrique.charrez@haften.com.mx': 'INGENIERO DE APLICACIÓN DE PRODUCTO DIVISIÓN HVAC/R-BMS',
+    'milton.garcia@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'isael.vazquez@haften.com.mx': 'INGENIERO LÍDER DE MARCA JOHNSON CONTROLS',
+    'abril.martinez@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'esteban.cano@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'jorge.sosa@haften.com.mx': 'GERENTE DE APLICACIONES HVAC/R-BMS',
+    'guillermo.gonzalez@haften.com.mx': 'COORDINADOR DE INGENIERÍA',
+    'alberto.ramirez@haften.com.mx': 'INGENIERO LÍDER DE MARCA VAISALA',
+    'itzel.islas@haften.com.mx': 'INGENIERO DE VENTAS JR',
+    'omar.isassi@haften.com.mx': 'INGENIERO REGIONAL DESARROLLO DE NEGOCIOS ZONA NORESTE',
+    'marco.rojas@haften.com.mx': 'INGENIERO DE APLICACIÓN DE PRODUCTO / DIV. HUMIDIFICACIÓN, DESHUMIDIFICACIÓN Y CALEFACTORES ELÉCTRICOS',
+    'alfonso.rivera@haften.com.mx': 'DIRECTOR GENERAL',
+    'pablo.pina@haften.com.mx': 'INGENIERO REGIONAL DESARROLLO DE NEGOCIOS ZONA OCCIDENTE',
+    'juancarlos.rodriguez@haften.com.mx': 'GERENTE DE DESARROLLO DE NEGOCIOS',
+    'rodrigo.almaraz@haften.com.mx': 'GERENTE DE APLICACIÓN DE PRODUCTO / DIV. HUMIDIFICACIÓN, DESHUMIDIFICACIÓN Y CALEFACTORES ELÉCTRICOS',
+    'mario.roman@haften.com.mx': 'INGENIERO DE APLICACIÓN DE PRODUCTO / DIV. HUMIDIFICACIÓN, DESHUMIDIFICACIÓN Y CALEFACTORES ELÉCTRICOS',
+    'israel.calixto@haften.com.mx': 'GERENTE DE ADMINISTRACIÓN',
+    'erick.carrizales@haften.com.mx': 'INGENIERO DE VENTAS JR / ZONA NORESTE'
+};
+
 function getOfficeLocationForEmployee(emp) {
     const normalizedName = normalizeSpacing(stripAccents(emp.nombre || '').toUpperCase());
     let location = officeLocations.cdmx;
@@ -418,6 +442,11 @@ employees.filter(e => e.nombre).forEach(emp => {
     const slug = emp.slug || slugify(emp.nombre);
     const userDistDir = path.join(distDir, slug);
     const officeLocation = getOfficeLocationForEmployee(emp);
+    const emailKey = (emp.correo || '').toLowerCase();
+
+    if (roleOverridesByEmail[emailKey]) {
+        emp.puesto = roleOverridesByEmail[emailKey];
+    }
 
     if (!fs.existsSync(userDistDir)) {
         fs.mkdirSync(userDistDir);
