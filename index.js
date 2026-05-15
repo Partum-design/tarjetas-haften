@@ -376,10 +376,48 @@ fotosMap.forEach(foto => {
 const template = fixMojibake(fs.readFileSync(templateFile, 'utf8'));
 let generatedCount = 0;
 
+const officeLocations = {
+    monterrey: {
+        sede: 'HAFTEN MONTERREY',
+        direccion: 'Constitución 2050, Obispado, 64060 Monterrey, N.L.'
+    },
+    guadalajara: {
+        sede: 'HAFTEN GUADALAJARA',
+        direccion: 'Av. Miguel Hidalgo y Costilla 2430, Vallarta Nte., 44690 Zapopan, Jal.'
+    },
+    cdmx: {
+        sede: 'Oficinas Centrales',
+        direccion: 'C. Tehuantepec 125, Roma Sur, Cuauhtémoc, 06760 Ciudad de México, CDMX'
+    }
+};
+
+function getOfficeLocationForEmployee(emp) {
+    const normalizedName = normalizeSpacing(stripAccents(emp.nombre || '').toUpperCase());
+    let location = officeLocations.cdmx;
+
+    if ([
+        'OMAR ISASSI GARCIA',
+        'ERICK ALBERTO CARRIZALES GARCIA'
+    ].includes(normalizedName)) {
+        location = officeLocations.monterrey;
+    } else if ([
+        'JUAN CARLOS RODRIGUEZ A.',
+        'PABLO PINA PACHECO'
+    ].includes(normalizedName)) {
+        location = officeLocations.guadalajara;
+    }
+
+    return {
+        ...location,
+        mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.direccion)}`
+    };
+}
+
 employees.filter(e => e.nombre).forEach(emp => {
     let finalHtml = template;
     const slug = emp.slug || slugify(emp.nombre);
     const userDistDir = path.join(distDir, slug);
+    const officeLocation = getOfficeLocationForEmployee(emp);
 
     if (!fs.existsSync(userDistDir)) {
         fs.mkdirSync(userDistDir);
@@ -432,6 +470,9 @@ employees.filter(e => e.nombre).forEach(emp => {
     finalHtml = finalHtml.replace(/{{WS_DISPLAY}}/g, emp.whatsapp ? 'flex' : 'none');
     finalHtml = finalHtml.replace(/{{EMAIL_DISPLAY}}/g, emp.correo ? 'flex' : 'none');
     finalHtml = finalHtml.replace(/{{TEL_DISPLAY}}/g, emp.telefono ? 'flex' : 'none');
+    finalHtml = finalHtml.replace(/{{MAPS_URL}}/g, officeLocation.mapsUrl);
+    finalHtml = finalHtml.replace(/{{DIRECCION}}/g, officeLocation.direccion);
+    finalHtml = finalHtml.replace(/{{SEDE}}/g, officeLocation.sede);
 
     const outputPath = path.join(userDistDir, 'index.html');
     fs.writeFileSync(outputPath, finalHtml);
