@@ -81,6 +81,7 @@
             border: none;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+            animation: cardEntrance 0.72s cubic-bezier(0.23, 1, 0.32, 1) both;
         }
 
         /* The moving inner layer */
@@ -252,6 +253,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            animation: photoPop 0.7s cubic-bezier(0.23, 1, 0.32, 1) 0.15s both;
         }
 
         .profile-pic {
@@ -264,6 +266,8 @@
             transform-origin: center 18%;
             border: 2px solid #fff;
             background: #fff;
+            opacity: 0;
+            animation: photoReady 0.55s ease 0.18s forwards;
         }
 
         .profile-icon {
@@ -418,12 +422,42 @@
             transform: scale(1.1);
             box-shadow: 0 5px 15px rgba(124, 42, 30, 0.3);
         }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes photoPop {
+            from { opacity: 0; transform: scale(0.88); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes photoReady {
+            to { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card-container,
+            .profile-container,
+            .profile-pic,
+            .flip-inner,
+            .action-btn,
+            .circle-icon {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .profile-pic {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
 <body oncontextmenu="return false;">
     <!-- Fondo de Video -->
-    <video autoplay muted loop playsinline preload="auto" class="video-bg">
+    <video autoplay muted loop playsinline preload="metadata" class="video-bg">
         <source
             src="../../video_fondo/fondo_video.mp4"
             type="video/mp4">
@@ -451,7 +485,7 @@
                 </div>
 
                 <div class="profile-container">
-                    <img src="./profile-cf885866.jpg" alt="JUAN GÓMEZ CARMONA" class="profile-pic">
+                    <img src="./profile-0cda9b5e.jpg" alt="JUAN GÓMEZ CARMONA" class="profile-pic" loading="eager" fetchpriority="high" decoding="async">
                 </div>
 
                 <div class="info-section">
@@ -474,7 +508,7 @@
                         style="display: flex;">
                         <i class="far fa-envelope"></i>
                     </a>
-                    <a href="tel:5556381224" class="circle-icon" title="Llamar Oficina"
+                    <a href="tel:+525556381224" class="circle-icon" title="Llamar Oficina"
                         style="display: flex;">
                         <i class="fas fa-phone-alt"></i>
                     </a>
@@ -509,9 +543,9 @@
                         <i class="far fa-envelope"></i>
                         <span>Juan.gomez@haften.com.mx</span>
                     </a>
-                    <a href="tel:5556381224" class="back-item" style="display: flex;">
+                    <a href="tel:+525556381224" class="back-item" style="display: flex;">
                         <i class="fas fa-phone-alt"></i>
-                        <span>5556381224</span>
+                        <span>+525556381224</span>
                     </a>
                     <a href="https://www.google.com/maps/search/?api=1&query=Tehuantepec%20125%2C%20Roma%20Sur%2C%2006760%20Ciudad%20de%20M%C3%A9xico%2C%20CDMX%2C%20M%C3%A9xico" target="_blank" class="back-item">
                         <i class="fas fa-map-marker-alt"></i>

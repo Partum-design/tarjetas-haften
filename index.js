@@ -474,6 +474,18 @@ function normalizePhotoPath(fullPath) {
     return stripAccents(fullPath).toLowerCase().trim().replace(/\\/g, '/');
 }
 
+function normalizePhoneForMexico(value) {
+    let digits = String(value || '').replace(/\D/g, '');
+    if (!digits) return '';
+
+    if (digits.startsWith('00')) digits = digits.slice(2);
+    if (digits.startsWith('521') && digits.length === 13) return `52${digits.slice(3)}`;
+    if (digits.startsWith('52') && digits.length === 12) return digits;
+    if (digits.length === 10) return `52${digits}`;
+
+    return digits;
+}
+
 function getFileHash(fullPath) {
     return crypto.createHash('sha1').update(fs.readFileSync(fullPath)).digest('hex').slice(0, 8);
 }
@@ -484,7 +496,8 @@ function getExistingProfileAsset(dir) {
 }
 
 function isProfileJpgPhoto(fullPath) {
-    return normalizePhotoPath(fullPath).includes('/foto de perfil/jpg/');
+    const normalizedPath = normalizePhotoPath(fullPath);
+    return normalizedPath.includes('/foto de perfil/') && normalizedPath.includes('/jpg/');
 }
 
 function isEmployeeJpegPhoto(fullPath) {
@@ -667,6 +680,8 @@ fotosMap.forEach(foto => {
             nombre: authorityEmployee.nombre,
             puesto: authorityEmployee.puesto || ('Especialista en ' + foto.baseArea),
             correo: authorityEmployee.correo || (capitalize.split(' ')[0].toLowerCase() + '@haften.com.mx'),
+            whatsapp: authorityEmployee.whatsapp || '',
+            telefono: authorityEmployee.telefono || '',
             fotoPath: foto
         };
         employees.push(newEmp);
@@ -736,6 +751,13 @@ const displayNameHtmlOverridesByEmail = {
     'israel.calixto@haften.com.mx': '<strong>L.C.P./ M.D.F</strong><br>ISRAEL CALIXTO REBOLLEDO'
 };
 
+const contactOverridesByName = {
+    'PAULINO GREGORIO TORRES PRUNEDA': {
+        whatsapp: '5511934012',
+        telefono: '5556381224'
+    }
+};
+
 function normalizeDisplayRole(role) {
     const normalizedRole = fixMojibake(normalizeSpacing(role || ''));
     // Convertir puestos a MAYÚSCULAS
@@ -782,9 +804,16 @@ employees.filter(e => e.nombre).forEach(emp => {
         emp.whatsapp = exactOverride.whatsapp || emp.whatsapp;
         emp.telefono = exactOverride.telefono || emp.telefono;
     }
+    const nameContactOverride = contactOverridesByName[normalizeSpacing(stripAccents(emp.nombre || '').toUpperCase())];
+    if (nameContactOverride) {
+        emp.whatsapp = nameContactOverride.whatsapp || emp.whatsapp;
+        emp.telefono = nameContactOverride.telefono || emp.telefono;
+    }
     if (emailKey === 'servando.gomez@haften.com.mx') {
         emp.puesto = 'Jefe de Logística';
     }
+    emp.whatsapp = normalizePhoneForMexico(emp.whatsapp);
+    emp.telefono = normalizePhoneForMexico(emp.telefono);
     emp.puesto = normalizeDisplayRole(emp.puesto);
     const officeLocation = getOfficeLocationForEmployee(emp);
     if (officeLocation.sede === 'Oficinas Centrales') {
@@ -821,10 +850,10 @@ employees.filter(e => e.nombre).forEach(emp => {
         const copiedPhotoPath = path.join(userDistDir, photoFileName);
         fs.copyFileSync(emp.fotoPath.fullPath, copiedPhotoPath);
 
-        fotoHTML = `<img src="./${photoFileName}" alt="${displayName}" class="profile-pic">`;
+        fotoHTML = `<img src="./${photoFileName}" alt="${displayName}" class="profile-pic" loading="eager" fetchpriority="high" decoding="async">`;
         previewSrc = `./dist/${slug}/${photoFileName}`;
     } else if (existingProfileAsset) {
-        fotoHTML = `<img src="./${existingProfileAsset}" alt="${displayName}" class="profile-pic">`;
+        fotoHTML = `<img src="./${existingProfileAsset}" alt="${displayName}" class="profile-pic" loading="eager" fetchpriority="high" decoding="async">`;
         previewSrc = `./dist/${slug}/${existingProfileAsset}`;
     } else {
         const initials = displayName.substring(0,2).toUpperCase();

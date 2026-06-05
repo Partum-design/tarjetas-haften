@@ -81,6 +81,7 @@
             border: none;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+            animation: cardEntrance 0.72s cubic-bezier(0.23, 1, 0.32, 1) both;
         }
 
         /* The moving inner layer */
@@ -252,6 +253,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            animation: photoPop 0.7s cubic-bezier(0.23, 1, 0.32, 1) 0.15s both;
         }
 
         .profile-pic {
@@ -264,6 +266,8 @@
             transform-origin: center 18%;
             border: 2px solid #fff;
             background: #fff;
+            opacity: 0;
+            animation: photoReady 0.55s ease 0.18s forwards;
         }
 
         .profile-icon {
@@ -418,12 +422,42 @@
             transform: scale(1.1);
             box-shadow: 0 5px 15px rgba(124, 42, 30, 0.3);
         }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes photoPop {
+            from { opacity: 0; transform: scale(0.88); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes photoReady {
+            to { opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card-container,
+            .profile-container,
+            .profile-pic,
+            .flip-inner,
+            .action-btn,
+            .circle-icon {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .profile-pic {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
 <body oncontextmenu="return false;">
     <!-- Fondo de Video -->
-    <video autoplay muted loop playsinline preload="auto" class="video-bg">
+    <video autoplay muted loop playsinline preload="metadata" class="video-bg">
         <source
             src="../../video_fondo/fondo_video.mp4"
             type="video/mp4">
@@ -474,7 +508,7 @@
                         style="display: {{EMAIL_DISPLAY}};">
                         <i class="far fa-envelope"></i>
                     </a>
-                    <a href="tel:{{TELEFONO}}" class="circle-icon" title="Llamar Oficina"
+                    <a href="tel:+{{TELEFONO}}" class="circle-icon" title="Llamar Oficina"
                         style="display: {{TEL_DISPLAY}};">
                         <i class="fas fa-phone-alt"></i>
                     </a>
@@ -509,9 +543,9 @@
                         <i class="far fa-envelope"></i>
                         <span>{{CORREO}}</span>
                     </a>
-                    <a href="tel:{{TELEFONO}}" class="back-item" style="display: {{TEL_DISPLAY}};">
+                    <a href="tel:+{{TELEFONO}}" class="back-item" style="display: {{TEL_DISPLAY}};">
                         <i class="fas fa-phone-alt"></i>
-                        <span>{{TELEFONO}}</span>
+                        <span>+{{TELEFONO}}</span>
                     </a>
                     <a href="{{MAPS_URL}}" target="_blank" class="back-item">
                         <i class="fas fa-map-marker-alt"></i>
