@@ -961,7 +961,7 @@ areasOrder.forEach(area => {
         let miniThumbnail = '';
         if(previewSrc) {
             miniThumbnail = `<div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex-shrink:0; margin-right:15px; border:2px solid #7C2A1E;">
-                <img src="${previewSrc}" style="width:100%; height:100%; object-fit:cover; object-position:center 18%; transform:scale(1.14);" loading="lazy" decoding="async">
+                <img src="${previewSrc}" style="width:100%; height:100%; object-fit:cover; object-position:center center; transform:scale(1.72); transform-origin:center 56%;" loading="lazy" decoding="async">
             </div>`;
         } else {
             miniThumbnail = `<div style="width:50px; height:50px; border-radius:50%; background:#7C2A1E; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:15px; font-weight:bold;">${capitalizeProperName(emp.nombre).substring(0,2)}</div>`;
