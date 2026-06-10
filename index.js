@@ -102,7 +102,7 @@ function loadAuthorityEmployees() {
 }
 
 const authorityAliases = new Map([
-    ['GUILLERMO GONZALEZ CHARREZ', 'GUILLERMO GONZALEZ CHAVEZ'],
+    ['GUILLERMO GONZALEZ CHAVEZ', 'GUILLERMO GONZALEZ CHARREZ'],
     ['ING JORGE EDUARDO SOSA MARTINEZ', 'JORGE EDUARDO SOSA MARTINEZ'],
     ['PABLO PINA PACHECO', 'JORGE PABLO PINA PACHECO'],
     ['RODRIGO ALMARAZ OLMOZ', 'RODRIGO ALMARAZ OLMOS'],
@@ -136,7 +136,7 @@ const employeeOverridesByEmail = {
         telefono: '5556381224'
     },
     'guillermo.gonzalez@haften.com.mx': {
-        nombre: 'Guillermo González Chávez',
+        nombre: 'Guillermo González Chárrez',
         puesto: 'COORDINADOR DE INGENIERÍA',
         correo: 'guillermo.gonzalez@haften.com.mx',
         whatsapp: '5580070402',
